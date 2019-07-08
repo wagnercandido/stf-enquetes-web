@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { Navbar } from 'react-bootstrap';
 import './styles.css';
 
-import logo from '../../assets/logo-stefanini.png';
+import logo from '../../assets/logo-branco.svg';
 
 export default class Header extends Component {
     render() {

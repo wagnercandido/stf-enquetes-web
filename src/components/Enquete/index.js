@@ -7,9 +7,7 @@ import io from 'socket.io-client';
 import './styles.css';
 import { Form, FormControl, Button, Card, } from 'react-bootstrap';
 
-const url = 'localhost:3000';
-
-export default class Main extends Component {
+export default class Enquete extends Component {
     state = {
         newEnquete: '',
         newAuthor: '',
