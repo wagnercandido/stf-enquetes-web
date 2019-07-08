@@ -1,0 +1,96 @@
+.container {
+    padding-top: 40px;
+}
+
+.card {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding-right: 10px;
+    padding-left: 10px;
+    border-radius: 0;
+}
+
+.cardQuestion {
+    background: rgba(240, 240, 240, 1);
+    padding-top: 10px;
+    padding-bottom: 0px;
+    border: none;
+}
+
+.cardComment {
+    border: none;
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cardTitle {
+    font-size: 1.125rem;
+    color: #656c7a;
+}
+
+.titleComment {
+    font-size: 1rem;
+}
+
+.cardText {
+    font-size: 0.875rem;
+    color: #5b5e64 !important;
+}
+
+.textComment {
+    font-size: 0.875rem;
+    margin-top: -10px;
+}
+
+.timecommet {
+    color: #888;
+    font-size: 0.85rem;
+}
+
+.cardBottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: -6px;
+}
+
+.like {
+    font-size: 0.875rem;
+    font-weight: bold;
+}
+
+.textArea {
+    border-radius: 0;
+}
+
+.userQuestion {
+    width: 60px;
+    height: 60px;
+    line-height: 60px;
+    background: #2c5c96;
+    margin-top: 5px;
+    color: #FFF;
+    font-size: 26px;
+}
+
+.userComment {
+    height: 50px;
+    line-height: 50px;
+    width: 50px;
+    background: #05a067;
+    color: #FFF;
+    font-size: 20px;
+}
+
+.responderButton {
+    color: #656c7a;
+    font-weight: bold;
+}
+
+.responderButton:hover {
+    text-decoration: none;
+}

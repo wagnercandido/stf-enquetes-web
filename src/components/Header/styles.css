@@ -1,0 +1,10 @@
+.navbar {
+    background: #20232a;
+}
+
+.navbar-light .navbar-brand,
+.navbar-text,
+.navbar-light .navbar-text a
+{
+    color: #fff;
+}
