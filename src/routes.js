@@ -8,7 +8,7 @@ import Usuarios from './components/Usuarios';
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
     <Route {...rest} render={(props) => (
-        {...rest}.user.isLogged
+        localStorage.getItem('loggedUser')
             ? <Component {...props} />
             : <Redirect to='/' />
     )} />
@@ -21,8 +21,8 @@ const Routes = () => (
                 <BrowserRouter>
                     <Switch>
                         <Route path="/" exact component={Usuarios} />
-                        <PrivateRoute path="/enquetes" user={ctx.user} exact component={Main} />
-                        <PrivateRoute path="/enquetes/:id" user={ctx.user} exact component={Enquete} />
+                        <PrivateRoute path="/enquetes" exact component={Main} />
+                        <PrivateRoute path="/enquetes/:id" exact component={Enquete} />
                     </Switch>
                 </BrowserRouter>
         }

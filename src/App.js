@@ -15,6 +15,7 @@ export default class App extends Component {
 
     setUser = user => {
         this.setState({ user: user });
+        localStorage.setItem('loggedUser', user.name);
     };
 
     state = {

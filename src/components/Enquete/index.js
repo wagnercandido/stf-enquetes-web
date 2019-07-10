@@ -16,7 +16,8 @@ export default class Enquete extends Component {
     state = {
         newComment: '',
         enquete: {},
-        sugestoes: []
+        sugestoes: [],
+        qtdSugestoes: 0,
     }
 
     async componentDidMount() {
@@ -27,7 +28,8 @@ export default class Enquete extends Component {
 
         this.setState({
             enquete: response.data,
-            sugestoes: response.data.sugestoes
+            sugestoes: response.data.sugestoes,
+            qtdSugestoes: response.data.sugestoes.length
         });
 
     }
@@ -46,33 +48,36 @@ export default class Enquete extends Component {
     }
 
     registerToSocket = () => {
+        const socket = io('http://localhost:3333');
+
+        socket.on('like', likedComment => {
+            this.setState({
+                sugestoes: this.state.sugestoes.map(sugestao =>
+                    sugestao._id === likedComment._id ? likedComment : sugestao
+                )
+                , enquete: this.state.enquete,
+                newComment: ''
+            });
+        });
+
+        socket.on('sugestao', ({ sugestao }) => {
+            this.setState({ sugestoes: [sugestao, ...this.state.sugestoes], enquete: this.state.enquete, newComment: '', qtdSugestoes: this.state.qtdSugestoes + 1 });
+        });
 
     }
 
     votarComment = async id => {
         const response = await api.post(`/sugestoes/${id}/like`);
-        const likedComment = response.data;
-        this.setState({
-            sugestoes: this.state.sugestoes.map(sugestao =>
-                sugestao._id === likedComment._id ? likedComment : sugestao
-            )
-            , enquete: this.state.enquete,
-            newComment: ''
-        });
-
     }
 
     publicarsugestao = async () => {
         const enquete = this.state.enquete._id;
 
         const response = await api.post(`enquetes/${enquete}/sugestoes`, {
-            author: 'Usuario Logado',
+            author: localStorage.getItem('loggedUser'),
             title: this.state.newComment
         });
 
-        this.returnsugestoes(this.state.enquete.sugestoes);
-
-        this.setState({ sugestoes: [response.data, ...this.state.sugestoes], enquete: this.state.enquete, newComment: '' });
     }
 
     handleInputCommentChange = (event) => {
@@ -101,7 +106,7 @@ export default class Enquete extends Component {
                                     <Card.Subtitle className="mb-2 text-muted cardText">{this.state.enquete.author}</Card.Subtitle>
                                     <div className="row">
                                         <div className="col-12 text-right ajusteGrid">
-                                            <small ><strong>{this.returnsugestoes(this.state.enquete.sugestoes)}</strong> sugestões</small>
+                                            <small ><strong>{this.state.qtdSugestoes}</strong> sugestões</small>
                                         </div>
                                     </div>
                                 </Card>
@@ -145,16 +150,18 @@ export default class Enquete extends Component {
                                                         })}
                                                     </span>
                                                 </div>
-                                                <div>
-                                                    <Card.Text className="mb-2 textComment">{sugestao.title}</Card.Text>
+                                                <div className="row">
+                                                    <div className="col">
+                                                        <Card.Text className="mb-2 textComment">{sugestao.title}</Card.Text>
+                                                    </div>
                                                 </div>
                                                 <div className="row">
-                                                    <div className="col-11 text-right" style={{'margin-top':'-25px'}}>
+                                                    <div className="col-11 text-right" style={{ 'margin-top': '-15px' }}>
                                                         <span className="like">{sugestao.likes} voto(s)</span>
                                                     </div>
                                                     <div className="col-1 text-left">
                                                         <span onClick={() => this.votarComment(sugestao._id)}>
-                                                            <img src={Votar} style={{ 'width': '22px', 'margin-top': '-50px', 'cursor': 'pointer' }} />
+                                                            <img src={Votar} style={{ 'width': '22px', 'margin-top': '-40px', 'cursor': 'pointer' }} />
                                                         </span>
                                                     </div>
                                                 </div>

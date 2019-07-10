@@ -17,21 +17,46 @@ export default class Main extends Component {
 
 
     async componentDidMount() {
+        this.registerToSocket();
         const response = await api.get('enquetes');
-        this.setState({ enquetes: response.data })
+        this.setState({ enquetes: response.data });
     };
 
     publicarEnquete = async event => {
         const response = await api.post(`enquetes`, {
-            author: this.state.newAuthor,
+            author: localStorage.getItem('loggedUser'),
             title: this.state.newEnquete
         });
         this.setState({ enquetes: [response.data, ...this.state.enquetes] });
+        document.getElementById('ta_enquete').value = '';
     };
 
     registerToSocket = () => {
 
+        const socket = io('http://localhost:3333');
+
+        
+        socket.on('sugestao', ({enquete}) => {
+            this.setState({
+                enquetes: this.state.enquetes.map(enq =>
+                    enquete._id === enq._id ? enquete : enq
+                )
+            });
+        });
+
+
+        socket.on('enquete', enquete =>{
+            var enquetes = this.state.enquetes;
+            enquetes = [enquete, ...enquetes];
+            this.setState({enquetes});
+        })
+
+
     };
+
+    updateEnquete = (enquete) =>{
+        
+    }
 
     handleInputEnqueteChange = (event) => {
         this.setState({ newEnquete: event.target.value });
@@ -68,16 +93,11 @@ export default class Main extends Component {
                                             aria-describedby="basic-addon2"
                                             value={this.state.newEnquete}
                                             onChange={this.handleInputEnqueteChange}
+                                            id="ta_enquete"
                                         />
                                     </div>
                                     <div className="col-md-8 author">
-                                        <Form.Control
-                                            placeholder="Autor" maxLength="20"
-                                            value={
-                                                this.state.newAuthor
-                                            }
-                                            onChange={this.handleInputAuthorChange}
-                                        />
+                                        
                                     </div>
                                     <div className="col-md-4">
                                         <Button className="buttonPublicar" onClick={this.publicarEnquete} variant="outline-secondary">Publicar</Button>
@@ -115,9 +135,6 @@ export default class Main extends Component {
                                                 <div className="row">
                                                     <div className="col-12 text-right ajusteGrid">
                                                         <small ><strong>{enquete.sugestoes.length}</strong> sugestões</small>
-                                                        {/* <Button className="responderButton" onClick={() => {
-                                                        this.props.history.push(`/enquetes/${enquete._id}`)
-                                                    }} variant="link">Acessar</Button> */}
                                                     </div>
                                                 </div>
                                             </Card>
