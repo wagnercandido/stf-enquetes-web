@@ -38,3 +38,9 @@
 .btnEntrar:hover {
     background: #364e6b !important;
 }
+
+.error {
+    color: #ff0018;
+    text-align: center;
+    margin-bottom: -10px;
+}

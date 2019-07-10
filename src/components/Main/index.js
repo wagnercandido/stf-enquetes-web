@@ -56,15 +56,14 @@ export default class Main extends Component {
                     <div className="row">
                         <div className="col-md-8">
                             <h3>Adicione uma nova Enquete</h3>
-                            <small>Seja breve e objetivo</small>
                         </div>
                         <div className="col-md-8">
-                            <form >
+                            <Form >
                                 <div className="row">
                                     <div className="col-md-12">
-                                        <FormControl
-                                            as="textarea" rows="2" style={{ resize: 'none' }}
-                                            placeholder="Comunicação da empresa"
+                                        <Form.Control
+                                            as="textarea" rows="2" style={{ resize: 'none' }} maxLength="100"
+                                            placeholder="Crie aqui sua Enquete. Seja breve e objetivo"
                                             aria-label="Recipient's username"
                                             aria-describedby="basic-addon2"
                                             value={this.state.newEnquete}
@@ -73,7 +72,7 @@ export default class Main extends Component {
                                     </div>
                                     <div className="col-md-8 author">
                                         <Form.Control
-                                            placeholder="Autor"
+                                            placeholder="Autor" maxLength="20"
                                             value={
                                                 this.state.newAuthor
                                             }
@@ -84,7 +83,7 @@ export default class Main extends Component {
                                         <Button className="buttonPublicar" onClick={this.publicarEnquete} variant="outline-secondary">Publicar</Button>
                                     </div>
                                 </div>
-                            </form>
+                            </Form>
                         </div>
 
                     </div>
@@ -114,7 +113,7 @@ export default class Main extends Component {
                                                 </div>
                                                 <Card.Subtitle className="mb-2 text-muted cardText">{enquete.author}</Card.Subtitle>
                                                 <div className="row">
-                                                    <div className="col-12 text-right">
+                                                    <div className="col-12 text-right ajusteGrid">
                                                         <small ><strong>{enquete.sugestoes.length}</strong> sugestões</small>
                                                         {/* <Button className="responderButton" onClick={() => {
                                                         this.props.history.push(`/enquetes/${enquete._id}`)

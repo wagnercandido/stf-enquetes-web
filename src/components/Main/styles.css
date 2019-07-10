@@ -116,6 +116,11 @@
     margin-top: 5px;
 }
 
-.nameUserOff {
-    display: none !important;
+h3 {
+    font-size: 1.5rem;
+    font-weight: bold
+}
+
+.ajusteGrid {
+    margin-bottom: 10px
 }

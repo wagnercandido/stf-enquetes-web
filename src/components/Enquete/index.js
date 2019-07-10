@@ -100,7 +100,7 @@ export default class Enquete extends Component {
                                     </div>
                                     <Card.Subtitle className="mb-2 text-muted cardText">{this.state.enquete.author}</Card.Subtitle>
                                     <div className="row">
-                                        <div className="col-12 text-right">
+                                        <div className="col-12 text-right ajusteGrid">
                                             <small ><strong>{this.returnsugestoes(this.state.enquete.sugestoes)}</strong> sugestões</small>
                                         </div>
                                     </div>
@@ -109,14 +109,14 @@ export default class Enquete extends Component {
                                     <div className="row gridCorrect">Adicione uma sugestão</div>
                                     <div className="row gridCorrect">
                                         <Form.Control
-                                            value={this.state.newComment}
+                                            value={this.state.newComment} maxLength="150"
                                             onChange={this.handleInputCommentChange}
                                             as="textarea" rows="2" className="textArea" style={{ resize: 'none' }} placeholder="Sugestão" />
                                     </div>
                                     <div className="row">
                                         <div className="col-12 text-right">
                                             <span className="responderButton" onClick={this.publicarsugestao} >
-                                                Sugerir <img src={Send} style={{ 'width': '25px' }} />
+                                                Sugerir <img src={Send} style={{ 'width': '21px' }} />
                                             </span>
                                         </div>
                                     </div>
