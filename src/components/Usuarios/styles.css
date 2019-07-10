@@ -1,0 +1,40 @@
+#main-container {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: -100px;
+}
+
+#main-container form {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+}
+
+#main-container form input {
+    height: 48px;
+    border: 1px solid #ddd;
+    border-radius: 0;
+    font-size: 16px;
+    padding: 0 20px;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.btnEntrar {
+    height: 48px;
+    border-radius: 0;
+    font-size: 16px;
+    padding: 0 20px;
+    margin-top: 30px;
+    background: #2c5c96;
+    color: #FFF;
+    font-weight: bold;
+    border: 0;
+    cursor: pointer;
+}
+
+.btnEntrar:hover {
+    background: #364e6b !important;
+}

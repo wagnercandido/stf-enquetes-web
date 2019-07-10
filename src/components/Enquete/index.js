@@ -7,143 +7,166 @@ import io from 'socket.io-client';
 import './styles.css';
 import { Form, FormControl, Button, Card, } from 'react-bootstrap';
 
+import Votar from '../../assets/like.svg';
+import Send from '../../assets/send.svg';
+
+
 export default class Enquete extends Component {
+
     state = {
-        newEnquete: '',
-        newAuthor: '',
-        enquetes: [],
-    };
+        newComment: '',
+        enquete: {},
+        sugestoes: []
+    }
 
     async componentDidMount() {
-        const response = await api.get('enquetes');
-        this.setState({ enquetes: response.data })
-    };
+        this.registerToSocket();
 
-    publicarEnquete = async event => {
+        const enquete = this.props.match.params.id;
+        const response = await api.get(`enquetes/${enquete}`);
 
-        const response = await api.post('enquetes', {
-            author: this.state.newAuthor,
-            title: this.state.newEnquete
+        this.setState({
+            enquete: response.data,
+            sugestoes: response.data.sugestoes
         });
 
-        this.setState({ enquetes: response.data });
+    }
 
-    };
+    returnIniciais = (nome) => {
+        if (nome) {
+            const iniciais = nome.trim().split(" ");
+            return iniciais.length > 1 ? iniciais[0][0] + iniciais[1][0] : iniciais[0][0];
+        }
+    }
+
+    returnsugestoes = (lista) => {
+        if (lista) {
+            return this.state.enquete.sugestoes.length;
+        }
+    }
 
     registerToSocket = () => {
 
-    };
+    }
 
-    handleInputEnqueteChange = (event) => {
-        this.setState({ newEnquete: event.target.value });
-    };
+    votarComment = async id => {
+        const response = await api.post(`/sugestoes/${id}/like`);
+        const likedComment = response.data;
+        this.setState({
+            sugestoes: this.state.sugestoes.map(sugestao =>
+                sugestao._id === likedComment._id ? likedComment : sugestao
+            )
+            , enquete: this.state.enquete,
+            newComment: ''
+        });
 
-    handleInputAuthorChange = (event) => {
-        this.setState({ newAuthor: event.target.value });
-    };
+    }
+
+    publicarsugestao = async () => {
+        const enquete = this.state.enquete._id;
+
+        const response = await api.post(`enquetes/${enquete}/sugestoes`, {
+            author: 'Usuario Logado',
+            title: this.state.newComment
+        });
+
+        this.returnsugestoes(this.state.enquete.sugestoes);
+
+        this.setState({ sugestoes: [response.data, ...this.state.sugestoes], enquete: this.state.enquete, newComment: '' });
+    }
+
+    handleInputCommentChange = (event) => {
+        this.setState({ newComment: event.target.value });
+    }
 
     render() {
         return (
-            <div>
-                <div className="container">
-                    <div className="row">
-                        <div className="col-md-8">
-                            <h3>Adicione uma nova enquete</h3>
-                            <small>Seja breve e objetivo</small>
-                        </div>
-                        <div className="col-md-8">
-                            <form onSubmit={this.publicarEnquete}>
-                                <div className="row">
-                                    <div className="col-md-12">
-                                        <FormControl
-                                            as="textarea" rows="2" style={{ resize: 'none' }}
-                                            placeholder="Comunicação da empresa"
-                                            aria-label="Recipient's username"
-                                            aria-describedby="basic-addon2"
-                                            value={this.state.newEnquete}
-                                            onChange={this.handleInputEnqueteChange}
-                                        />
+            <div className="container">
+                <div className="row">
+                    <div className="col-md-8">
+                        <div className="row" >
+                            <div className="col-1 text-center">
+                                <div className="userQuestion">{this.returnIniciais(this.state.enquete.author)}</div>
+                            </div>
+                            <div className="col-11">
+                                <Card className="cardQuestion">
+                                    <div className="cardHeader">
+                                        <Card.Title className="cardTitle">{this.state.enquete.title}</Card.Title>
+                                        <span className="timecommet">há {
+                                            distanceInWords(this.state.enquete.createdAt, new Date(), {
+                                                locale: pt
+                                            })}
+                                        </span>
                                     </div>
-                                    <div className="col-md-8 author">
+                                    <Card.Subtitle className="mb-2 text-muted cardText">{this.state.enquete.author}</Card.Subtitle>
+                                    <div className="row">
+                                        <div className="col-12 text-right">
+                                            <small ><strong>{this.returnsugestoes(this.state.enquete.sugestoes)}</strong> sugestões</small>
+                                        </div>
+                                    </div>
+                                </Card>
+                                <Form>
+                                    <div className="row gridCorrect">Adicione uma sugestão</div>
+                                    <div className="row gridCorrect">
                                         <Form.Control
-                                            placeholder="Autor"
-                                            value={this.state.newAuthor}
-                                            onChange={this.handleInputAuthorChange}
-                                        />
+                                            value={this.state.newComment}
+                                            onChange={this.handleInputCommentChange}
+                                            as="textarea" rows="2" className="textArea" style={{ resize: 'none' }} placeholder="Sugestão" />
                                     </div>
-                                    <div className="col-md-4">
-                                        <Button className="buttonPublicar" type="submit" variant="outline-secondary">Publicar</Button>
+                                    <div className="row">
+                                        <div className="col-12 text-right">
+                                            <span className="responderButton" onClick={this.publicarsugestao} >
+                                                Sugerir <img src={Send} style={{ 'width': '25px' }} />
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
-                            </form>
+                                </Form>
+                                <hr />
+                            </div>
                         </div>
 
-                    </div>
+                        {this.state.sugestoes && this.state.sugestoes.map(sugestao => (
+                            <div className="row" key={sugestao._id} style={{ 'margin-top': '10px' }}>
 
-                    <hr />
-                    <div className="row">
-                        {this.state.enquetes && this.state.enquetes.map(enquete => (
+                                <div className="col-md-1"></div>
+                                <div className="col-md-11">
 
-                            <div className="col-md-8" key={enquete._id}>
-
-                                <div className="row">
-                                    <div className="col-1 text-center">
-                                        <div className="userQuestion">WC</div>
-                                    </div>
-                                    <div className="col-11">
-                                        <Card className="cardQuestion">
-                                            <div className="cardHeader">
-                                                <Card.Title className="cardTitle">{enquete.title}</Card.Title>
-                                                <span className="timecommet">há {
-                                                    distanceInWords(enquete.createdAt, new Date(), {
-                                                        locale: pt
-                                                    })}
-                                                </span>
+                                    <Card className="cardComment">
+                                        <div className="row">
+                                            <div className="col-1 text-center">
+                                                <div className="userComment">{this.returnIniciais(sugestao.author)}</div>
                                             </div>
-                                            <Card.Subtitle className="mb-2 text-muted cardText">{enquete.author}</Card.Subtitle>
-                                            <div className="row">
-                                                <div className="col-12 text-right">
-                                                    <Button className="responderButton" onClick={() => {
-                                                        this.props.history.push(`/enquete/${enquete._id}`)
-                                                    }} variant="link">Acessar</Button>
+                                            <div className="col-11">
+                                                <div className="cardHeader">
+                                                    <Card.Title className="cardTitle titleComment">{sugestao.author}</Card.Title>
+                                                    <span className="timecommet">há {
+                                                        distanceInWords(sugestao.createdAt, new Date(), {
+                                                            locale: pt
+                                                        })}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <Card.Text className="mb-2 textComment">{sugestao.title}</Card.Text>
+                                                </div>
+                                                <div className="row">
+                                                    <div className="col-11 text-right" style={{'margin-top':'-25px'}}>
+                                                        <span className="like">{sugestao.likes} voto(s)</span>
+                                                    </div>
+                                                    <div className="col-1 text-left">
+                                                        <span onClick={() => this.votarComment(sugestao._id)}>
+                                                            <img src={Votar} style={{ 'width': '22px', 'margin-top': '-50px', 'cursor': 'pointer' }} />
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </Card>
-                                    </div>
+                                        </div>
+                                    </Card>
                                 </div>
-
-
-                                {/* Adicione um comentário
-                            <Form.Control as="textarea" rows="2" className="textArea" style={{ resize: 'none' }} placeholder="Sugestão, elogio ou reclamação" /> */}
-
-                                {/* <Card className="cardComment">
-                                    <div className="row">
-                                        <div className="col-md-1"></div>
-                                        <div className="col-1 text-center">
-                                            <div className="userComment">A</div>
-                                        </div>
-                                        <div className="col-10">
-                                            <div className="cardHeader">
-                                                <Card.Title className="cardTitle titleComment">Arthurzinho</Card.Title>
-                                                <span className="timecommet">05/07/2019</span>
-                                            </div>
-                                            <div>
-                                                <Card.Text className="mb-2 textComment">A empresa é muito boa, excelente!</Card.Text>
-                                            </div>
-                                            <div className="cardBottom">
-                                                <span className="like">11 likes</span>
-                                                <span>Gostei</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </Card> */}
                             </div>
-
-
                         ))}
                     </div>
                 </div>
-            </div>
+            </div >
         );
     }
 }

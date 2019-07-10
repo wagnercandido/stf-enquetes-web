@@ -27,6 +27,12 @@
     align-items: center;
 }
 
+.cardBottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .cardTitle {
     font-size: 1.125rem;
     color: #656c7a;
@@ -34,6 +40,7 @@
 
 .titleComment {
     font-size: 1rem;
+    color: #656c7a !important;
 }
 
 .cardText {
@@ -61,6 +68,7 @@
 .like {
     font-size: 0.875rem;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .textArea {
@@ -72,7 +80,6 @@
     height: 60px;
     line-height: 60px;
     background: #2c5c96;
-    margin-top: 5px;
     color: #FFF;
     font-size: 26px;
 }
@@ -89,6 +96,7 @@
 .responderButton {
     color: #656c7a;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .responderButton:hover {
@@ -104,4 +112,9 @@
 
 .author {
     margin-top: 5px;
+}
+
+.gridCorrect {
+    margin-left: 0;
+    margin-right: 0;
 }

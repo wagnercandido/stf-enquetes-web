@@ -27,6 +27,16 @@
     align-items: center;
 }
 
+.cardBottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.linkQuestion:hover {
+    cursor: pointer;
+}
+
 .cardTitle {
     font-size: 1.125rem;
     color: #656c7a;
@@ -104,4 +114,8 @@
 
 .author {
     margin-top: 5px;
+}
+
+.nameUserOff {
+    display: none !important;
 }
