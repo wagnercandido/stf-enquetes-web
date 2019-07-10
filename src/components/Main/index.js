@@ -33,7 +33,7 @@ export default class Main extends Component {
 
     registerToSocket = () => {
 
-        const socket = io('http://localhost:3333');
+        const socket = io('https://stf-pocka-backend.herokuapp.com');
 
         
         socket.on('sugestao', ({enquete}) => {
