@@ -15,8 +15,8 @@ export default class Header extends Component {
 
     redirectLogin = () => {
         localStorage.removeItem('loggedUser');
-        // window.location.href = 'https://stf-pocka-frontend.herokuapp.com/login'
-        window.location.href = '/login'
+        window.location.href = 'https://stf-pocka-frontend.herokuapp.com/login'
+        // window.location.href = '/login'
     }
 
     componentDidMount() {
