@@ -164,7 +164,7 @@ export default class Enquete extends Component {
                                                 </div>
                                                 <div className="row">
                                                     <div className="col-11 text-right" style={{ 'margin-top': '-15px' }}>
-                                                        <span className="like">{sugestao.likes} voto(s)</span>
+                                                        <span className="like">{sugestao.votos.length} voto(s)</span>
                                                     </div>
                                                     <div className="col-1 text-left">
                                                         <span onClick={() => this.votarComment(sugestao._id)}>
