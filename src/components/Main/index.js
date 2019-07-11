@@ -33,10 +33,11 @@ export default class Main extends Component {
 
     registerToSocket = () => {
 
-        const socket = io('https://stf-pocka-backend.herokuapp.com');
+        // const socket = io('https://stf-pocka-backend.herokuapp.com');
+        const socket = io('http://localhost:3333');
 
-        
-        socket.on('sugestao', ({enquete}) => {
+
+        socket.on('sugestao', ({ enquete }) => {
             this.setState({
                 enquetes: this.state.enquetes.map(enq =>
                     enquete._id === enq._id ? enquete : enq
@@ -45,17 +46,17 @@ export default class Main extends Component {
         });
 
 
-        socket.on('enquete', enquete =>{
+        socket.on('enquete', enquete => {
             var enquetes = this.state.enquetes;
             enquetes = [enquete, ...enquetes];
-            this.setState({enquetes});
+            this.setState({ enquetes });
         })
 
 
     };
 
-    updateEnquete = (enquete) =>{
-        
+    updateEnquete = (enquete) => {
+
     }
 
     handleInputEnqueteChange = (event) => {
@@ -87,7 +88,7 @@ export default class Main extends Component {
                                 <div className="row">
                                     <div className="col-md-12">
                                         <Form.Control
-                                            as="textarea" rows="2" style={{ resize: 'none' }} maxLength="100"
+                                            as="textarea" rows="2" maxLength="500"
                                             placeholder="Crie aqui sua Enquete. Seja breve e objetivo"
                                             aria-label="Recipient's username"
                                             aria-describedby="basic-addon2"
@@ -97,7 +98,7 @@ export default class Main extends Component {
                                         />
                                     </div>
                                     <div className="col-md-8 author">
-                                        
+
                                     </div>
                                     <div className="col-md-4">
                                         <Button className="buttonPublicar" onClick={this.publicarEnquete} variant="outline-secondary">Publicar</Button>
@@ -123,16 +124,18 @@ export default class Main extends Component {
                                             this.props.history.push(`/enquetes/${enquete._id}`)
                                         }}>
                                             <Card className="cardQuestion">
-                                                <div className="cardHeader">
-                                                    <Card.Title className="cardTitle">{enquete.title}</Card.Title>
+                                                <div className="row rowInterno cardHeader">
+                                                    <Card.Subtitle className="mb-2 text-muted cardText">{enquete.author}</Card.Subtitle>
                                                     <span className="timecommet">há {
                                                         distanceInWords(enquete.createdAt, new Date(), {
                                                             locale: pt
                                                         })}
                                                     </span>
                                                 </div>
-                                                <Card.Subtitle className="mb-2 text-muted cardText">{enquete.author}</Card.Subtitle>
-                                                <div className="row">
+                                                <div className="row rowInterno">
+                                                    <Card.Title className="cardTitle">{enquete.title}</Card.Title>
+                                                </div>
+                                                <div className="row rowInterno">
                                                     <div className="col-12 text-right ajusteGrid">
                                                         <small ><strong>{enquete.sugestoes.length}</strong> sugestões</small>
                                                     </div>
@@ -141,10 +144,6 @@ export default class Main extends Component {
                                         </a>
                                     </div>
                                 </div>
-
-
-                                {/* Adicione um comentário
-                            <Form.Control as="textarea" rows="2" className="textArea" style={{ resize: 'none' }} placeholder="Sugestão, elogio ou reclamação" /> */}
                             </div>
                         ))}
                     </div>

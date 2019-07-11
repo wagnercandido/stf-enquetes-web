@@ -10,7 +10,7 @@ const PrivateRoute = ({ component: Component, ...rest }) => (
     <Route {...rest} render={(props) => (
         localStorage.getItem('loggedUser')
             ? <Component {...props} />
-            : <Redirect to='/' />
+            : <Redirect to='/login' />
     )} />
 )
 
@@ -20,7 +20,8 @@ const Routes = () => (
             ctx =>
                 <BrowserRouter>
                     <Switch>
-                        <Route path="/" exact component={Usuarios} />
+                        <Route path="/" exact component={Main} />
+                        <Route path="/login" exact component={Usuarios} />
                         <PrivateRoute path="/enquetes" exact component={Main} />
                         <PrivateRoute path="/enquetes/:id" exact component={Enquete} />
                     </Switch>

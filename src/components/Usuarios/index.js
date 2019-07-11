@@ -11,6 +11,8 @@ export default class Usuarios extends Component {
         newUser: '',
         newPass: '',
         error: '',
+        pressSenha: '',
+        id: ''
     }
 
     componentDidMount() {
@@ -36,8 +38,9 @@ export default class Usuarios extends Component {
         })
 
         if (response.data.status === 200) {
-            setUser({ name: response.data.user });
+            setUser({ name: response.data.user, id: response.data._id });
             localStorage.setItem('loggedUser', response.data.user);
+            localStorage.setItem('idLoggedUser', response.data._id);
             this.props.history.push(`/enquetes`);
         } else {
             this.setState({ error: 'usuário ou senha inválido' })
@@ -58,10 +61,14 @@ export default class Usuarios extends Component {
                 {
                     ({ setUser }) => (
                         <div id="main-container">
-                            <form >
-                                <input type="hidden" value="texto" />
+                            <form className="classForm">
+                                <h4>
+                                    <label for="username">Entrar</label>
+                                </h4>
+                                <small className="info">Senha de acesso: Data de Nascimento DDMMYYYY</small>
                                 <Form.Control
-                                    placeholder="usuario de rede" autoComplete="desligado" autoCorrect="off" spellCheck="off"
+                                    id="username"
+                                    placeholder="usuário de rede" autoComplete="desligado" autoCorrect="off" spellCheck="off"
                                     value={this.state.newUser}
                                     onChange={this.handleUserChange}
                                     autoFocus
@@ -76,7 +83,7 @@ export default class Usuarios extends Component {
                                     onKeyUpCapture={event => { this.efetuarLogin(event.keyCode, setUser) }}
                                 />
                                 <small className="error">{this.state.error}</small>
-                                <Button className="btnEntrar" onClick={() => this.login(setUser)} title="sua senha é sua data de nascimento">Entrar</Button>
+                                <Button className="btnEntrar" onClick={() => this.login(setUser)} >Entrar</Button>
 
                             </form>
                         </div>

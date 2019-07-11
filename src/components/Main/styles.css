@@ -22,6 +22,7 @@
 }
 
 .cardHeader {
+    padding-top: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -123,4 +124,8 @@ h3 {
 
 .ajusteGrid {
     margin-bottom: 10px
+}
+
+.rowInterno {
+    margin: 0;
 }

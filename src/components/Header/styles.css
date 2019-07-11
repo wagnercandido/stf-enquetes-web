@@ -12,5 +12,23 @@
 
 #icon{
     filter: invert(1.0);
-    margin: 5px;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 8px;
+}
+
+#icon:hover {
+    opacity: 0.4;
+}
+
+.iniciaisArea {
+    height: 40px;
+    width: 40px;
+    background: #585858;
+    flex: 1;
+    text-align: center;
+    border-radius: 30px;
+    padding-top: 7px;
+    font-size: 16px;
+    color: #FFF;
 }

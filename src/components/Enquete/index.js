@@ -48,7 +48,8 @@ export default class Enquete extends Component {
     }
 
     registerToSocket = () => {
-        const socket = io('https://stf-pocka-backend.herokuapp.com');
+        // const socket = io('https://stf-pocka-backend.herokuapp.com');
+        const socket = io('http://localhost:3333');
 
         socket.on('like', likedComment => {
             this.setState({
@@ -67,7 +68,10 @@ export default class Enquete extends Component {
     }
 
     votarComment = async id => {
-        const response = await api.post(`/sugestoes/${id}/like`);
+        const idUser = localStorage.getItem('idLoggedUser');
+        const response = await api.post(`/sugestoes/${id}/like`, {
+            "_id": idUser
+        });
     }
 
     publicarsugestao = async () => {
@@ -95,15 +99,18 @@ export default class Enquete extends Component {
                             </div>
                             <div className="col-11">
                                 <Card className="cardQuestion">
-                                    <div className="cardHeader">
-                                        <Card.Title className="cardTitle">{this.state.enquete.title}</Card.Title>
+                                    <div className="row rowInterno cardHeader">
+                                        <Card.Subtitle className="mb-2 text-muted cardText">{this.state.enquete.author}</Card.Subtitle>
                                         <span className="timecommet">há {
                                             distanceInWords(this.state.enquete.createdAt, new Date(), {
                                                 locale: pt
                                             })}
                                         </span>
                                     </div>
-                                    <Card.Subtitle className="mb-2 text-muted cardText">{this.state.enquete.author}</Card.Subtitle>
+                                    <div className="row rowInterno">
+                                        <Card.Title className="cardTitle">{this.state.enquete.title}</Card.Title>
+
+                                    </div>
                                     <div className="row">
                                         <div className="col-12 text-right ajusteGrid">
                                             <small ><strong>{this.state.qtdSugestoes}</strong> sugestões</small>
@@ -114,9 +121,9 @@ export default class Enquete extends Component {
                                     <div className="row gridCorrect">Adicione uma sugestão</div>
                                     <div className="row gridCorrect">
                                         <Form.Control
-                                            value={this.state.newComment} maxLength="150"
+                                            value={this.state.newComment} maxLength="300"
                                             onChange={this.handleInputCommentChange}
-                                            as="textarea" rows="2" className="textArea" style={{ resize: 'none' }} placeholder="Sugestão" />
+                                            as="textarea" rows="2" className="textArea" placeholder="Sugestão" />
                                     </div>
                                     <div className="row">
                                         <div className="col-12 text-right">
