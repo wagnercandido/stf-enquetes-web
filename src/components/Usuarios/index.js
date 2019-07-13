@@ -32,7 +32,7 @@ export default class Usuarios extends Component {
     login = async (setUser) => {
         this.setState({ error: '' });
 
-        const response = await api.post(`users`, {
+        const response = await api.post(`login`, {
             username: String(this.state.newUser),
             password: String(this.state.newPass)
         })

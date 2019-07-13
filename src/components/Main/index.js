@@ -32,10 +32,8 @@ export default class Main extends Component {
     };
 
     registerToSocket = () => {
-
-        const socket = io('https://stf-pocka-backend.herokuapp.com');
-        // const socket = io('http://localhost:3333');
-
+        // const socket = io('https://stf-pocka-backend.herokuapp.com');
+        const socket = io('http://localhost:3333');
 
         socket.on('sugestao', ({ enquete }) => {
             this.setState({
@@ -55,10 +53,6 @@ export default class Main extends Component {
 
     };
 
-    updateEnquete = (enquete) => {
-
-    }
-
     handleInputEnqueteChange = (event) => {
         this.setState({ newEnquete: event.target.value });
     };
@@ -75,9 +69,6 @@ export default class Main extends Component {
     render() {
         return (
             <div>
-                {/* <Consumer>
-                    {ctx => ctx.user.name}
-                </Consumer> */}
                 <div className="container">
                     <div className="row">
                         <div className="col-md-8">

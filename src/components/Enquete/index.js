@@ -5,7 +5,7 @@ import pt from 'date-fns/locale/pt';
 import io from 'socket.io-client';
 
 import './styles.css';
-import { Form, FormControl, Button, Card, } from 'react-bootstrap';
+import { Form, Card, } from 'react-bootstrap';
 
 import Votar from '../../assets/like.svg';
 import Send from '../../assets/send.svg';
@@ -48,8 +48,8 @@ export default class Enquete extends Component {
     }
 
     registerToSocket = () => {
-        const socket = io('https://stf-pocka-backend.herokuapp.com');
-        // const socket = io('http://localhost:3333');
+        // const socket = io('https://stf-pocka-backend.herokuapp.com');
+        const socket = io('http://localhost:3333');
 
         socket.on('like', likedComment => {
             this.setState({

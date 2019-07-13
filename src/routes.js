@@ -5,6 +5,7 @@ import { Consumer } from './App'
 import Main from './components/Main';
 import Enquete from './components/Enquete';
 import Usuarios from './components/Usuarios';
+import Eventos from './components/Eventos';
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
     <Route {...rest} render={(props) => (
@@ -24,6 +25,7 @@ const Routes = () => (
                         <Route path="/login" exact component={Usuarios} />
                         <PrivateRoute path="/enquetes" exact component={Main} />
                         <PrivateRoute path="/enquetes/:id" exact component={Enquete} />
+                        <PrivateRoute path="/eventos" exact component={Eventos} />
                     </Switch>
                 </BrowserRouter>
         }

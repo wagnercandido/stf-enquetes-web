@@ -1,0 +1,31 @@
+.spinner {
+    height: 100% !important;
+    background: red;
+}
+
+label {
+    margin-bottom: -4px;
+}
+
+.borderInput {
+    margin-top: -2px;
+    border: none;
+    border-radius: 0;
+    border-bottom: 1px solid #AAA;
+}
+
+.buttonPublicar {
+    margin-top: 15px;
+    width: 100% !important;
+}
+
+.showFormButton {
+    margin-left: 10px;
+    background: none;
+    border: 1px solid #9199ab;
+}
+
+.showFormButton:hover, .showFormButton:active {
+    background: #EEE;
+    border: 1px solid #DDD;
+}
