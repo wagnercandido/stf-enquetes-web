@@ -21,11 +21,11 @@ const Routes = () => (
             ctx =>
                 <BrowserRouter>
                     <Switch>
-                        <Route path="/" exact component={Main} />
-                        <Route path="/login" exact component={Usuarios} />
-                        <PrivateRoute path="/enquetes" exact component={Main} />
-                        <PrivateRoute path="/enquetes/:id" exact component={Enquete} />
+                        <Route path="/" exact component={Eventos} />
                         <PrivateRoute path="/eventos" exact component={Eventos} />
+                        <Route path="/login" exact component={Usuarios} />
+                        <PrivateRoute path="/enquetes/evento/:id" exact component={Main} />
+                        <PrivateRoute path="/sugestoes/enquete/:id" exact component={Enquete} />
                     </Switch>
                 </BrowserRouter>
         }

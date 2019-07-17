@@ -13,21 +13,26 @@ export default class Main extends Component {
         newEnquete: '',
         newAuthor: '',
         enquetes: [],
+        evento: ''
     };
-
 
     async componentDidMount() {
         this.registerToSocket();
-        const response = await api.get('enquetes');
-        this.setState({ enquetes: response.data });
+        let evento = this.props.match.params.id;
+        const response = await api.get(`/enquetes/evento/${evento}`);
+        const resevento = await api.get(`/eventos/${evento}`);
+        this.setState({ enquetes: response.data, evento: resevento.data });
+        console.log('componentDidMount', this.state);
     };
 
     publicarEnquete = async event => {
         const response = await api.post(`enquetes`, {
             author: localStorage.getItem('loggedUser'),
-            title: this.state.newEnquete
+            title: this.state.newEnquete,
+            idEvento: this.state.evento
         });
-        this.setState({ enquetes: [response.data, ...this.state.enquetes] });
+
+        // this.setState({ enquetes: [response.data, ...this.state.enquetes] });
         document.getElementById('ta_enquete').value = '';
     };
 
@@ -43,14 +48,11 @@ export default class Main extends Component {
             });
         });
 
-
         socket.on('enquete', enquete => {
             var enquetes = this.state.enquetes;
             enquetes = [enquete, ...enquetes];
             this.setState({ enquetes });
         })
-
-
     };
 
     handleInputEnqueteChange = (event) => {
@@ -63,7 +65,12 @@ export default class Main extends Component {
 
     returnIniciais = (nome) => {
         const iniciais = nome.trim().split(" ");
-        return iniciais.length > 1 ? iniciais[0][0] + iniciais[1][0] : iniciais[0][0];
+        const retorno = iniciais.length > 1 ? iniciais[0][0] + iniciais[1][0] : iniciais[0][0];
+        return retorno.toUpperCase();
+    }
+
+    retunrData = (data) => {
+        return data ? new Date(data).toLocaleDateString() : '';
     }
 
     render() {
@@ -71,10 +78,20 @@ export default class Main extends Component {
             <div>
                 <div className="container">
                     <div className="row">
-                        <div className="col-md-8">
+                        <div className="col-12">
+                            <h3>{this.state.evento.nome && (this.state.evento.nome).toUpperCase()}
+                                <small>{this.state.evento.operacao}</small>
+                            </h3>
+                        </div>
+                        <div className="col-12">
+                            <small>{this.retunrData(this.state.evento.dtInicial)} - {this.retunrData(this.state.evento.dtFinal)}</small>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-12">
                             <h3>Adicione uma nova Enquete</h3>
                         </div>
-                        <div className="col-md-8">
+                        <div className="col-12">
                             <Form >
                                 <div className="row">
                                     <div className="col-md-12">
@@ -88,10 +105,10 @@ export default class Main extends Component {
                                             id="ta_enquete"
                                         />
                                     </div>
-                                    <div className="col-md-8 author">
+                                    <div className="col-md-9 author">
 
                                     </div>
-                                    <div className="col-md-4">
+                                    <div className="col-md-3 text-right">
                                         <Button className="buttonPublicar" onClick={this.publicarEnquete} variant="outline-secondary">Publicar</Button>
                                     </div>
                                 </div>
@@ -104,7 +121,7 @@ export default class Main extends Component {
                     <div className="row">
                         {this.state.enquetes && this.state.enquetes.map(enquete => (
 
-                            <div className="col-md-8" key={enquete._id}>
+                            <div className="col-12" key={enquete._id}>
 
                                 <div className="row">
                                     <div className="col-1 text-center">
@@ -112,7 +129,7 @@ export default class Main extends Component {
                                     </div>
                                     <div className="col-11">
                                         <a className="linkQuestion" onClick={() => {
-                                            this.props.history.push(`/enquetes/${enquete._id}`)
+                                            this.props.history.push(`/sugestoes/enquete/${enquete._id}`)
                                         }}>
                                             <Card className="cardQuestion">
                                                 <div className="row rowInterno cardHeader">
@@ -128,7 +145,8 @@ export default class Main extends Component {
                                                 </div>
                                                 <div className="row rowInterno">
                                                     <div className="col-12 text-right ajusteGrid">
-                                                        <small ><strong>{enquete.sugestoes.length}</strong> sugestões</small>
+                                                        {/* <small ><strong>{enquete.sugestoes.length}</strong> sugestões</small> */}
+                                                        <small ><strong>teste 10</strong> sugestões</small>
                                                     </div>
                                                 </div>
                                             </Card>

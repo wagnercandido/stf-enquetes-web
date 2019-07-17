@@ -127,3 +127,7 @@
 .rowInterno {
     margin: 0;
 }
+
+.rowMarginTop {
+    margin-top: 10px;
+}

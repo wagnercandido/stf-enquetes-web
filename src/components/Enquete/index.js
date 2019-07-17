@@ -18,26 +18,24 @@ export default class Enquete extends Component {
         enquete: {},
         sugestoes: [],
         qtdSugestoes: 0,
+        new: ''
     }
 
     async componentDidMount() {
         this.registerToSocket();
 
-        const enquete = this.props.match.params.id;
-        const response = await api.get(`enquetes/${enquete}`);
-
-        this.setState({
-            enquete: response.data,
-            sugestoes: response.data.sugestoes,
-            qtdSugestoes: response.data.sugestoes.length
-        });
+        const idEnquete = this.props.match.params.id;
+        const response = await api.get(`/sugestoes/enquete/${idEnquete}`);
+        const enquete = await api.post('/enquetes/sugestao', { idEnquete: idEnquete });
+        this.setState({ sugestoes: response.data, enquete: enquete.data });
 
     }
 
     returnIniciais = (nome) => {
         if (nome) {
             const iniciais = nome.trim().split(" ");
-            return iniciais.length > 1 ? iniciais[0][0] + iniciais[1][0] : iniciais[0][0];
+            const retorno = iniciais.length > 1 ? iniciais[0][0] + iniciais[1][0] : iniciais[0][0];
+            return retorno.toUpperCase();
         }
     }
 
@@ -68,18 +66,19 @@ export default class Enquete extends Component {
     }
 
     votarComment = async id => {
-        const idUser = localStorage.getItem('idLoggedUser');
-        const response = await api.post(`/sugestoes/${id}/like`, {
-            "_id": idUser
+        await api.post(`/sugestoes/votar`, {
+            idUser: localStorage.getItem('idLoggedUser'),
+            idSugestao: id
         });
     }
 
     publicarsugestao = async () => {
         const enquete = this.state.enquete._id;
 
-        const response = await api.post(`enquetes/${enquete}/sugestoes`, {
+        const response = await api.post(`/sugestoes`, {
             author: localStorage.getItem('loggedUser'),
-            title: this.state.newComment
+            title: this.state.newComment,
+            idEnquete: enquete
         });
 
     }
@@ -92,7 +91,7 @@ export default class Enquete extends Component {
         return (
             <div className="container">
                 <div className="row">
-                    <div className="col-md-8">
+                    <div className="col-12">
                         <div className="row" >
                             <div className="col-1 text-center">
                                 <div className="userQuestion">{this.returnIniciais(this.state.enquete.author)}</div>
@@ -138,7 +137,7 @@ export default class Enquete extends Component {
                         </div>
 
                         {this.state.sugestoes && this.state.sugestoes.map(sugestao => (
-                            <div className="row" key={sugestao._id} style={{ 'margin-top': '10px' }}>
+                            <div className="row rowMarginTop" key={sugestao._id}>
 
                                 <div className="col-md-1"></div>
                                 <div className="col-md-11">
