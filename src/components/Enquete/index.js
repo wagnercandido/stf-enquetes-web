@@ -5,7 +5,7 @@ import pt from 'date-fns/locale/pt';
 import io from 'socket.io-client';
 
 import './styles.css';
-import { Form, Card, } from 'react-bootstrap';
+import { Form, Card, Spinner } from 'react-bootstrap';
 
 import Votar from '../../assets/like.svg';
 import Send from '../../assets/send.svg';
@@ -18,16 +18,22 @@ export default class Enquete extends Component {
         enquete: {},
         sugestoes: [],
         qtdSugestoes: 0,
-        new: ''
+        new: '',
+
+        loadding: false,
+        loaddingLike: true,
+        spinner: false,
+        alerts: false,
     }
 
     async componentDidMount() {
+        this.setState({ spinner: true });
         this.registerToSocket();
 
         const idEnquete = this.props.match.params.id;
         const response = await api.get(`/sugestoes/enquete/${idEnquete}`);
         const enquete = await api.post('/enquetes/sugestao', { idEnquete: idEnquete });
-        this.setState({ sugestoes: response.data, enquete: enquete.data });
+        this.setState({ sugestoes: response.data, enquete: enquete.data, qtdSugestoes: response.data.length, spinner: false });
 
     }
 
@@ -66,20 +72,33 @@ export default class Enquete extends Component {
     }
 
     votarComment = async id => {
+        this.setState({ loaddingLike: false });
         await api.post(`/sugestoes/votar`, {
             idUser: localStorage.getItem('idLoggedUser'),
             idSugestao: id
-        });
+        }).then((data) => {
+            this.setState({ loaddingLike: true });
+        })
     }
 
     publicarsugestao = async () => {
+        this.setState({ alerts: false });
         const enquete = this.state.enquete._id;
 
-        const response = await api.post(`/sugestoes`, {
-            author: localStorage.getItem('loggedUser'),
-            title: this.state.newComment,
-            idEnquete: enquete
-        });
+        if (this.state.newComment.trim().length === 0) {
+            this.setState({ alerts: true });
+        } else {
+            this.setState({ loadding: true });
+            const response = await api.post(`/sugestoes`, {
+                author: localStorage.getItem('loggedUser'),
+                title: this.state.newComment,
+                idEnquete: enquete
+            }).then((data) => {
+                this.setState({ newComment: '' });
+                this.setState({ loadding: false });
+            });
+        }
+
 
     }
 
@@ -90,7 +109,14 @@ export default class Enquete extends Component {
     render() {
         return (
             <div className="container">
-                <div className="row">
+                <div className="row" style={{ 'display': this.state.spinner ? '' : 'none' }}>
+                    <div className="col-md-12 text-center lineLoadding">
+                        <Spinner animation="border" variant="secondary" role="status">
+                            <span className="sr-only">Loading...</span>
+                        </Spinner>
+                    </div>
+                </div>
+                <div className="row" style={{ 'display': !this.state.spinner ? '' : 'none' }}>
                     <div className="col-12">
                         <div className="row" >
                             <div className="col-1 text-center">
@@ -117,7 +143,7 @@ export default class Enquete extends Component {
                                     </div>
                                 </Card>
                                 <Form>
-                                    <div className="row gridCorrect">Adicione uma sugestão</div>
+                                    <div className="row gridCorrect">Adicione uma sugestão<small className="alerts">*</small></div>
                                     <div className="row gridCorrect">
                                         <Form.Control
                                             value={this.state.newComment} maxLength="300"
@@ -125,7 +151,15 @@ export default class Enquete extends Component {
                                             as="textarea" rows="2" className="textArea" placeholder="Sugestão" />
                                     </div>
                                     <div className="row">
-                                        <div className="col-12 text-right">
+                                        <div className="col-md-9">
+                                            <small className="alerts" style={{ 'display': this.state.alerts ? '' : 'none' }}>* Campo obrigatório</small>
+                                        </div>
+                                        <div className="col-md-3 text-right" style={{ 'display': this.state.loadding ? '' : 'none' }}>
+                                            <Spinner animation="border" variant="secondary" role="status" size="sm">
+                                                <span className="sr-only">Loading...</span>
+                                            </Spinner>
+                                        </div>
+                                        <div className="col-md-3 text-right" style={{ 'display': !this.state.loadding ? '' : 'none' }}>
                                             <span className="responderButton" onClick={this.publicarsugestao} >
                                                 Sugerir <img src={Send} style={{ 'width': '21px' }} />
                                             </span>
@@ -165,7 +199,7 @@ export default class Enquete extends Component {
                                                     <div className="col-11 text-right" style={{ 'margin-top': '-15px' }}>
                                                         <span className="like">{sugestao.votos.length} voto(s)</span>
                                                     </div>
-                                                    <div className="col-1 text-left">
+                                                    <div className="col-1 text-left" style={{ 'disabled': this.state.loaddingLike ? '' : 'disabled' }}>
                                                         <span onClick={() => this.votarComment(sugestao._id)}>
                                                             <img src={Votar} style={{ 'width': '22px', 'margin-top': '-40px', 'cursor': 'pointer' }} />
                                                         </span>

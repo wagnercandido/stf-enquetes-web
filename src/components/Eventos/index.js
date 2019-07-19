@@ -210,16 +210,6 @@ export default class Eventos extends Component {
                                             </a>
                                         ))}
                                     </ListGroup>
-                                    {/* <ListGroup id="listgroup"  style={{ 'display': this.state.showListOperacoes ? '' : 'none', 'position': 'absolute', 'z-index': '9999' }}>
-                                        {this.state.operacoes && this.state.operacoes.map((operacao) => (
-                                            <ListGroup.Item id="item" style={{ 'border': 'none' }} value={operacao} onClick={(event) => this.returnOperacao(event) }>{operacao && operacao.name}</ListGroup.Item>
-                                        ))}
-                                    </ListGroup> */}
-                                    {/* <Form.Control  onChange={this.returnOperacao} as="select" style={{ 'display': this.state.showListOperacoes ? '' : 'none', 'position': 'absolute', 'z-index': '9999'}}>
-                                    {this.state.operacoes && this.state.operacoes.map(operacao => (
-                                            <option style={{ 'border': 'none' }} value={operacao.name} >{operacao.name}</option>
-                                        ))} 
-                                    </Form.Control > */}
                                 </div>
                                 <div className="col-md-9">
                                     <small><label>Nome</label></small><small className="alerts" style={{ 'display': this.state.alerts ? '' : 'none' }}>* Campo obrigatório</small>

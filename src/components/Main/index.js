@@ -5,7 +5,7 @@ import pt from 'date-fns/locale/pt';
 import io from 'socket.io-client';
 
 import './styles.css';
-import { Form, FormControl, Button, Card, } from 'react-bootstrap';
+import { Form, Spinner, Button, Card, } from 'react-bootstrap';
 import { Consumer } from '../../App';
 
 export default class Main extends Component {
@@ -13,27 +13,43 @@ export default class Main extends Component {
         newEnquete: '',
         newAuthor: '',
         enquetes: [],
-        evento: ''
+        evento: '',
+        operacao: '',
+
+        loadding: false,
+        spinner: false,
+        alerts: false,
     };
 
     async componentDidMount() {
+        this.setState({ spinner: true });
         this.registerToSocket();
         let evento = this.props.match.params.id;
         const response = await api.get(`/enquetes/evento/${evento}`);
-        const resevento = await api.get(`/eventos/${evento}`);
-        this.setState({ enquetes: response.data, evento: resevento.data });
-        console.log('componentDidMount', this.state);
+        let resEvento = await api.get(`/eventos/${evento}`);
+        const resOp = await api.get(`/operacoes/${resEvento.data.operacao}`)
+
+        this.setState({ enquetes: response.data, evento: resEvento.data, operacao: resOp.data, spinner: false })
     };
 
     publicarEnquete = async event => {
-        const response = await api.post(`enquetes`, {
-            author: localStorage.getItem('loggedUser'),
-            title: this.state.newEnquete,
-            idEvento: this.state.evento
-        });
+        this.setState({ alerts: false });
+        if (this.state.newEnquete.trim().length === 0) {
+            this.setState({ alerts: true });
+        } else {
+            this.setState({ loadding: true });
+            const response = await api.post(`enquetes`, {
+                author: localStorage.getItem('loggedUser'),
+                title: this.state.newEnquete,
+                idEvento: this.state.evento
+            }).then((data) => {
+                this.setState({ newEnquete: '' })
+                document.getElementById('ta_enquete').value = '';
+                this.setState({ loadding: false });
+            })
+        }
 
         // this.setState({ enquetes: [response.data, ...this.state.enquetes] });
-        document.getElementById('ta_enquete').value = '';
     };
 
     registerToSocket = () => {
@@ -49,6 +65,7 @@ export default class Main extends Component {
         });
 
         socket.on('enquete', enquete => {
+            enquete.sugestoes = 0;
             var enquetes = this.state.enquetes;
             enquetes = [enquete, ...enquetes];
             this.setState({ enquetes });
@@ -76,20 +93,30 @@ export default class Main extends Component {
     render() {
         return (
             <div>
-                <div className="container">
+                <div className="container row" style={{ 'display': this.state.spinner ? '' : 'none' }}>
+                    <div className="col-md-12 text-center lineLoadding">
+                        <Spinner animation="border" variant="secondary" role="status">
+                            <span className="sr-only">Loading...</span>
+                        </Spinner>
+                    </div>
+                </div>
+                <div className="container" style={{ 'display': !this.state.spinner ? '' : 'none' }}>
                     <div className="row">
-                        <div className="col-12">
-                            <h3>{this.state.evento.nome && (this.state.evento.nome).toUpperCase()}
-                                <small>{this.state.evento.operacao}</small>
-                            </h3>
-                        </div>
-                        <div className="col-12">
-                            <small>{this.retunrData(this.state.evento.dtInicial)} - {this.retunrData(this.state.evento.dtFinal)}</small>
+                        <div className="col row-evento">
+                            <div>
+                                <small>Evento</small>
+                                <h3>{this.state.evento.nome && (this.state.evento.nome).toUpperCase()}</h3>
+                            </div>
+                            <div>
+                                Operação: <small>{this.state.operacao.nome}</small>
+                                <br />
+                                <small>{this.retunrData(this.state.evento.dtInicial)} - {this.retunrData(this.state.evento.dtFinal)}</small>
+                            </div>
                         </div>
                     </div>
                     <div className="row">
                         <div className="col-12">
-                            <h3>Adicione uma nova Enquete</h3>
+                            <h5>Adicione uma nova Enquete<small className="alerts">*</small></h5>
                         </div>
                         <div className="col-12">
                             <Form >
@@ -105,10 +132,15 @@ export default class Main extends Component {
                                             id="ta_enquete"
                                         />
                                     </div>
-                                    <div className="col-md-9 author">
-
+                                    <div className="col-md-9">
+                                        <small className="alerts" style={{ 'display': this.state.alerts ? '' : 'none' }}>* Campo obrigatório</small>
                                     </div>
-                                    <div className="col-md-3 text-right">
+                                    <div className="col-md-3 text-center" style={{ 'display': this.state.loadding ? '' : 'none' }}>
+                                        <Spinner animation="border" variant="secondary" role="status">
+                                            <span className="sr-only">Loading...</span>
+                                        </Spinner>
+                                    </div>
+                                    <div className="col-md-3 text-right" style={{ 'display': !this.state.loadding ? '' : 'none' }}>
                                         <Button className="buttonPublicar" onClick={this.publicarEnquete} variant="outline-secondary">Publicar</Button>
                                     </div>
                                 </div>
@@ -120,7 +152,6 @@ export default class Main extends Component {
                     <hr />
                     <div className="row">
                         {this.state.enquetes && this.state.enquetes.map(enquete => (
-
                             <div className="col-12" key={enquete._id}>
 
                                 <div className="row">
@@ -146,7 +177,7 @@ export default class Main extends Component {
                                                 <div className="row rowInterno">
                                                     <div className="col-12 text-right ajusteGrid">
                                                         {/* <small ><strong>{enquete.sugestoes.length}</strong> sugestões</small> */}
-                                                        <small ><strong>teste 10</strong> sugestões</small>
+                                                        <small ><strong>{enquete.sugestoes && enquete.sugestoes}</strong> sugestões</small>
                                                     </div>
                                                 </div>
                                             </Card>

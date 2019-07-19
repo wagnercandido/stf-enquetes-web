@@ -131,3 +131,14 @@
 .rowMarginTop {
     margin-top: 10px;
 }
+
+.alerts {
+    color: red;
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+.gridCorrect .alerts {
+    font-size: 16px !important;
+    margin-left: 0px;
+}

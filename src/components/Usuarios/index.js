@@ -41,7 +41,7 @@ export default class Usuarios extends Component {
             setUser({ name: response.data.user, id: response.data._id });
             localStorage.setItem('loggedUser', response.data.user);
             localStorage.setItem('idLoggedUser', response.data._id);
-            this.props.history.push(`/enquetes`);
+            this.props.history.push(`/eventos`);
         } else {
             this.setState({ error: 'usuário ou senha inválido' })
             return this.setState.error = true;
