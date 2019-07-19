@@ -12,8 +12,8 @@ export default class Main extends Component {
     state = {
         newEnquete: '',
         newAuthor: '',
-        enquetes: [],
         evento: '',
+        enquetes: [],
         operacao: '',
 
         loadding: false,
@@ -24,12 +24,30 @@ export default class Main extends Component {
     async componentDidMount() {
         this.setState({ spinner: true });
         this.registerToSocket();
-        let evento = this.props.match.params.id;
-        const response = await api.get(`/enquetes/evento/${evento}`);
-        let resEvento = await api.get(`/eventos/${evento}`);
-        const resOp = await api.get(`/operacoes/${resEvento.data.operacao}`)
 
-        this.setState({ enquetes: response.data, evento: resEvento.data, operacao: resOp.data, spinner: false })
+        let evento = this.props.match.params.id;
+
+        await api.get(`/eventos/${evento}`)
+            .then((res) => {
+                this.setState({ evento: res.data, spinner: false });
+                api.get(`/operacoes/${this.state.evento.operacao}`)
+                    .then((res) => {
+                        this.setState({ spinner: true });
+                        this.setState({ operacao: res.data, spinner: false })
+                        api.get(`/enquetes/evento/${evento}`)
+                            .then((res) => {
+                                this.setState({ spinner: true });
+                                this.setState({ enquetes: res.data, spinner: false });
+                            }).catch((error) => {
+                                console.log('catch enquetes', error);
+                            })
+                    }).catch((error) => {
+                        console.log('catch operacao', error);
+                    })
+            }).catch((error) => {
+                console.log('catch evento', error);
+            })
+
     };
 
     publicarEnquete = async event => {
@@ -48,8 +66,6 @@ export default class Main extends Component {
                 this.setState({ loadding: false });
             })
         }
-
-        // this.setState({ enquetes: [response.data, ...this.state.enquetes] });
     };
 
     registerToSocket = () => {
@@ -93,14 +109,11 @@ export default class Main extends Component {
     render() {
         return (
             <div>
-                <div className="container row" style={{ 'display': this.state.spinner ? '' : 'none' }}>
-                    <div className="col-md-12 text-center lineLoadding">
-                        <Spinner animation="border" variant="secondary" role="status">
-                            <span className="sr-only">Loading...</span>
-                        </Spinner>
+
+                <div className="container">
+                    <div className="row rotas">
+                        <small><a>Eventos</a> > <a>Enquetes</a></small>
                     </div>
-                </div>
-                <div className="container" style={{ 'display': !this.state.spinner ? '' : 'none' }}>
                     <div className="row">
                         <div className="col row-evento">
                             <div>
@@ -150,7 +163,14 @@ export default class Main extends Component {
                     </div>
 
                     <hr />
-                    <div className="row">
+                    <div className="row" style={{ 'display': this.state.spinner ? '' : 'none' }}>
+                        <div className="col-md-12 text-center lineLoadding">
+                            <Spinner animation="border" variant="secondary" role="status">
+                                <span className="sr-only">Loading...</span>
+                            </Spinner>
+                        </div>
+                    </div>
+                    <div className="row" style={{ 'display': !this.state.spinner ? '' : 'none' }}>
                         {this.state.enquetes && this.state.enquetes.map(enquete => (
                             <div className="col-12" key={enquete._id}>
 

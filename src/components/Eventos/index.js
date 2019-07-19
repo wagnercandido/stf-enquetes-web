@@ -39,11 +39,16 @@ export default class Eventos extends Component {
     }
 
     async getEventos() {
+        let ativos = [];
+        let inativos = [];
         this.setState({ load: true });
         const res = await api.get('eventos');
         const resOp = await api.get('operacoes');
-        this.setState({ eventos: res.data, operacoes: resOp.data, load: false });
-        console.log(this.state);
+        res.data.map((evento) => {
+            new Date(evento.dtFinal) > new Date() ? inativos.push(evento) : ativos.push(evento);
+        })
+
+        this.setState({ eventos: ativos, eventosInativos: inativos, operacoes: resOp.data, load: false });
     }
 
     showForm = () => {
@@ -113,10 +118,6 @@ export default class Eventos extends Component {
         const socket = io('http://localhost:3333');
 
         socket.on('evento', newEvento => {
-            console.log(newEvento);
-            // this.getOperacao(newEvento.operacao).then(object => newEvento.operacao = object);
-            // console.log('depois', newEvento);
-
             this.setState({ eventos: [newEvento, ...this.state.eventos] })
         })
     };
@@ -133,7 +134,7 @@ export default class Eventos extends Component {
     changeNome = (event) => {
         this.setState({ nome: event.target.value });
         if (this.state.showListOperacoes) {
-            this.setState({showListOperacoes: false});
+            this.setState({ showListOperacoes: false });
         }
     };
 
@@ -163,17 +164,26 @@ export default class Eventos extends Component {
             load: false,
             alerts: false,
             toast: false,
-        })
+        });
+        document.getElementById('operacao').value = ''
     };
 
     showListOperacoes = () => {
+        console.log('showlist', this.state);
+
         const showOperacoes = !this.state.showListOperacoes;
         this.setState({ showListOperacoes: showOperacoes });
     }
 
+    displayOffOperacoesClick = () => {
+        if (this.state.showListOperacoes) {
+            this.setState({ showListOperacoes: false })
+        }
+    }
+
     render() {
         return (
-            <div className="container">
+            <div id="container" className="container" onClick={() => this.displayOffOperacoesClick()}>
                 <div style={{ display: this.state.toast ? '' : 'none' }}>
                     <Toast tipo='success' mensagem='Enquete cadastrada' />
                 </div>
@@ -203,7 +213,7 @@ export default class Eventos extends Component {
                                     <ListGroup id="listgroup" style={{ 'display': this.state.showListOperacoes ? '' : 'none' }}>
 
                                         {this.state.operacoes && this.state.operacoes.map((operacao) => (
-                                            <a className="itemLista" id="item" onClick={() => this.returnOperacao(operacao)} >
+                                            <a key={operacao._id} className="itemLista" id="item" onClick={() => this.returnOperacao(operacao)} >
                                                 <ListGroup.Item style={{ 'border': 'none' }} className="listHover">
                                                     {operacao.nome}
                                                 </ListGroup.Item>
@@ -253,7 +263,7 @@ export default class Eventos extends Component {
                                         <option value={false}>Não</option>
                                     </Form.Control>
                                 </div>
-                                <div className="col-md-3 text-center" style={{ 'display': this.state.loadding ? '' : 'none', 'margin-top': '15px' }}>
+                                <div className="col-md-3 text-center marginSpinner" style={{ 'display': this.state.loadding ? '' : 'none' }}>
                                     <Spinner animation="border" variant="secondary" role="status">
                                         <span className="sr-only">Loading...</span>
                                     </Spinner>
@@ -299,7 +309,7 @@ export default class Eventos extends Component {
                                     </div>
                                     <div className="row dateCampo">
                                         <small>{this.retunrData(evento.dtInicial)} - {this.retunrData(evento.dtFinal)}</small>
-                                        <small className="operacao">{evento.operacao}</small>
+                                        <small className="operacao">{evento.operacao && evento.operacao.nome}</small>
                                     </div>
                                 </Card.Body>
                             </Card>
