@@ -1,6 +1,27 @@
-.container {
+/* .container {
     padding-top: 40px;
+} */
+
+.container {
+    padding-top: 0px !important;
 }
+
+.rotas {
+    padding:10px;
+}
+
+.link-rotas {
+    cursor: pointer;
+}
+
+.card {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding-right: 10px;
+    padding-left: 10px;
+    border-radius: 0;
+}
+
 
 .card {
     margin-top: 5px;

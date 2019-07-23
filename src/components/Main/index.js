@@ -109,10 +109,9 @@ export default class Main extends Component {
     render() {
         return (
             <div>
-
                 <div className="container">
                     <div className="row rotas">
-                        <small><a>Eventos</a> > <a>Enquetes</a></small>
+                        <small><a className="link-rotas" onClick={()=>window.history.back()}>Eventos</a> > <a>Enquetes</a></small>
                     </div>
                     <div className="row">
                         <div className="col row-evento">

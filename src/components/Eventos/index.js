@@ -250,7 +250,7 @@ export default class Eventos extends Component {
                 <div style={{ display: this.state.toast ? '' : 'none' }}>
                     <Toast tipo='success' mensagem='Enquete cadastrada' />
                 </div>
-                <div className="row">
+                <div className="row marginTop-screen">
                     <div className="col-md-8">
                         <h3>Adicione um novo Evento<Button className="showFormButton" onClick={this.showForm}><img src={IconMais}></img></Button></h3>
                     </div>

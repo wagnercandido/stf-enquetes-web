@@ -109,6 +109,9 @@ export default class Enquete extends Component {
     render() {
         return (
             <div className="container">
+                <div className="row rotas">
+                    <small><a className="link-rotas" onClick={() => this.props.history.push('/')}>Eventos</a> > <a className="link-rotas" onClick={() => window.history.back()}>Enquetes</a> > <a >Sugestões</a></small>
+                </div>
                 <div className="row" style={{ 'display': this.state.spinner ? '' : 'none' }}>
                     <div className="col-md-12 text-center lineLoadding">
                         <Spinner animation="border" variant="secondary" role="status">
