@@ -10,85 +10,70 @@ import { Form, Button, Spinner, Card, ListGroup, ListGroupItem, FormControl, Dro
 import IconMais from '../../assets/sum-icon.svg';
 import Toast from '../../services/toast';
 
-import * as helpers from '../helpers';
-import OperacaoContext from '../helpers/context';
-import DropdownToggle from '../helpers/dropdownToggle';
-// const Operation = React.createContext('');
+let globalOperacao = '';
 
-// class CustomToggle extends React.Component {
-//     constructor(props, context) {
-//         super(props, context);
+class CustomToggle extends React.Component {
+    constructor(props, context) {
+        super(props, context);
 
-//         this.handleClick = this.handleClick.bind(this);
-//     }
+        this.handleClick = this.handleClick.bind(this);
+    }
 
-//     handleClick(e) {
-//         e.preventDefault();
+    handleClick(e) {
+        e.preventDefault();
 
-//         this.props.onClick(e);
-//     }
+        this.props.onClick(e);
+    }
 
-//     render() {
-//         return (
-//             <a href="" className="a-input" onClick={this.handleClick}>
-//                 {this.props.children}
-//             </a>
-//         );
-//     }
-// }
+    render() {
+        return (
+            <a href="" className="a-input" onClick={this.handleClick}>
+                {this.props.children}
+            </a>
+        );
+    }
+}
 
-// class CustomMenu extends React.Component {
-//     constructor(props, context) {
-//         super(props, context);
+class CustomMenu extends React.Component {
+    constructor(props, context) {
+        super(props, context);
 
-//         this.handleChange = this.handleChange.bind(this);
+        this.handleChange = this.handleChange.bind(this);
 
-//         this.state = { value: '' };
-//     }
+        this.state = { value: '' };
+    }
 
-//     handleChange = (e) => {
+    handleChange(e) {
+        globalOperacao = e.target.value;
+        this.setState({ value: e.target.value.trim() });
+    }
 
-//         console.log('log 3 =>', e.target.value);
+    render() {
+        const {
+            children,
+            style,
+            className,
+            'aria-labelledby': labeledBy,
+        } = this.props;
 
-//         this.setState({ value: e.target.value.toLowerCase().trim() });
-
-//         setTimeout(() => {
-//             console.log('handle SetState =>', this.state);
-//         }, 1000);
-
-
-//     }
-
-//     render() {
-//         const {
-//             children,
-//             style,
-//             className,
-//             'aria-labelledby': labeledBy,
-//         } = this.props;
-
-//         // const { value } = this.state;
-
-//         return (
-//             <Operation.Provider value={this.state.value}>
-//                 <div style={style} className={className} aria-labelledby={labeledBy}>
-//                     <FormControl
-//                         autoFocus
-//                         className="mx-3 my-2 w-auto"
-//                         placeholder="Type to filter..."
-//                         onChange={this.handleChange}
-//                         value={this.state.value}
-//                     />
-//                     <ul className="list-unstyled">
-//                         {React.Children.toArray(children).filter(
-//                             child => !this.state.value || child.props.children.toLowerCase().startsWith(this.state.value),
-//                         )}
-//                     </ul>
-//                 </div>
-//             </Operation.Provider>
-//         );
-//     }
-// }
+        return (
+            <div style={style} className={className} aria-labelledby={labeledBy}>
+                <FormControl
+                    autoFocus
+                    className="mx-3 my-2 w-auto"
+                    placeholder="Type to filter..."
+                    onChange={this.handleChange}
+                    value={this.state.value}
+                />
+                <ul className="list-unstyled">
+                    {React.Children.toArray(children).filter(
+                        child => !this.state.value || child.props.children.startsWith(this.state.value),
+                    )}
+                </ul>
+            </div>
+        );
+    }
+}
 
 export default class Eventos extends Component {
     state = {
@@ -105,17 +90,11 @@ export default class Eventos extends Component {
         alerts: false,
         toast: false,
 
-        operacaoDigitada: '',
-
         eventos: [],
         eventosInativos: [],
         operacoes: [],
         showListOperacoes: false
     }
-
-    toggleOperacao = () => {
-        this.setState({ operacao: this.state.operacao })
-    };
 
     async componentDidMount() {
         this.getEventos();
@@ -142,8 +121,10 @@ export default class Eventos extends Component {
     salvarEvento = async () => {
         let operacaoInsert = '';
 
+        this.setState({ operacao: globalOperacao !== '' ? globalOperacao : this.state.operacao });
+
         this.setState({ alerts: false })
-        if (!this.state.operacao && this.state.operacaoDigitada.trim().length === 0) {
+        if (!this.state.operacao) {
             this.showAlerts();
         } else if (this.state.nome.trim().length === 0) {
             this.showAlerts();
@@ -198,16 +179,18 @@ export default class Eventos extends Component {
     }
 
     returnOperacao = op => {
-        console.log('log 1 =>', op);
 
         this.setState({ operacao: op });
         this.showListOperacoes();
+        setTimeout(() => {
+            console.log('log 1 =>', op, '\nState =>', this.state);
+        }, 1000);
     }
 
-    changeOperacao = (teste) => {
-        console.log('changeOperacao', teste);
+    changeOperacao = (log) => {
+        console.log('changeOperacao', log);
 
-        // this.setState({ operacao: this.state.operacao });
+        this.setState({ operacao: log });
         // this.showListOperacoes();
     };
 
@@ -233,7 +216,6 @@ export default class Eventos extends Component {
     limparForm = () => {
         this.setState({
             operacao: [],
-            operacaoDigitada: '',
             nome: '',
             dataInicial: '',
             dataFinal: '',
@@ -245,7 +227,7 @@ export default class Eventos extends Component {
             alerts: false,
             toast: false,
         });
-        document.getElementById('operacao').value = ''
+        // document.getElementById('operacao').value = ''
     };
 
     showListOperacoes = () => {
@@ -262,6 +244,7 @@ export default class Eventos extends Component {
     }
 
     render() {
+        let op = this.state.operacao;
         return (
             <div id="container" className="container">
                 <div style={{ display: this.state.toast ? '' : 'none' }}>
@@ -301,26 +284,15 @@ export default class Eventos extends Component {
                                             </a>
                                         ))}
                                     </ListGroup> */}
-                              
-                                    <OperacaoContext.Consumer>
-
-                                        {operacao => (console.log('value 296', this.state),
-
-                                            <DropdownToggle operacao={operacao} operacoes={this.state.operacoes} />
-
-
-
-                                            // <Dropdown className="dropdown" value={value} onChange={value => this.changeOperacao} >
-                                            //     <Dropdown.Toggle as={CustomToggle} id="dropdown-custom-components" >
-                                            //         Selecione ou digite</Dropdown.Toggle>
-                                            //     <Dropdown.Menu className="dropdown-menu" as={CustomMenu} id="changeOp">
-                                            //         {this.state.operacoes && this.state.operacoes.map((operacao) => (
-                                            //             <Dropdown.Item eventKey={operacao} onClick={() => this.returnOperacao(operacao)} >{operacao}</Dropdown.Item>
-                                            //         ))}
-                                            //     </Dropdown.Menu>
-                                            // </Dropdown>
-                                        )}
-                                    </OperacaoContext.Consumer>
+                                    <Dropdown className="dropdown">
+                                        <Dropdown.Toggle as={CustomToggle} id="dropdown-custom-components" onChange={this.returnOperacao}>
+                                            Selecione ou digite</Dropdown.Toggle>
+                                        <Dropdown.Menu className="dropdown-menu" as={CustomMenu} id="changeOp">
+                                            {this.state.operacoes && this.state.operacoes.map((operacao) => (
+                                                <Dropdown.Item key={operacao} onClick={() => this.returnOperacao(operacao)} >{operacao}</Dropdown.Item>
+                                            ))}
+                                        </Dropdown.Menu>
+                                    </Dropdown>
                                 </div>
                                 <div className="col-md-9">
                                     <small><label>Nome</label></small><small className="alerts" style={{ 'display': this.state.alerts ? '' : 'none' }}>* Campo obrigatório</small>
