@@ -64,6 +64,21 @@ label {
     cursor: pointer;
 }
 
+.inputOperation {
+    border-bottom: 1px solid #AAA;
+}
+
+.a-input {
+    line-height: 35px;
+    color: #656c7a;
+}
+
+.a-input:hover {
+    color: #656c7a;
+    text-decoration: none;
+    
+}
+
 .cardTitle {
     font-weight: bold;
     font-size: 0.9rem;
@@ -107,6 +122,13 @@ input[type=number] {
     max-height: 300px;
     overflow:scroll;
     -webkit-overflow-scrolling: touch;
+}
+
+.dropdown-menu {
+    max-height: 350px;
+    overflow: scroll;
+    -webkit-overflow-scrooling: touch;
+    top: 5px !important;
 }
 
 .itemLista {

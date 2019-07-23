@@ -5,15 +5,95 @@ import { distanceInWords } from 'date-fns';
 import io from 'socket.io-client';
 
 import './styles.css';
-import { Form, Button, Spinner, Card, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Form, Button, Spinner, Card, ListGroup, ListGroupItem, FormControl, Dropdown } from 'react-bootstrap';
 
 import IconMais from '../../assets/sum-icon.svg';
 import Toast from '../../services/toast';
 
+import * as helpers from '../helpers';
+import OperacaoContext from '../helpers/context';
+import DropdownToggle from '../helpers/dropdownToggle';
+// const Operation = React.createContext('');
+
+// class CustomToggle extends React.Component {
+//     constructor(props, context) {
+//         super(props, context);
+
+//         this.handleClick = this.handleClick.bind(this);
+//     }
+
+//     handleClick(e) {
+//         e.preventDefault();
+
+//         this.props.onClick(e);
+//     }
+
+//     render() {
+//         return (
+//             <a href="" className="a-input" onClick={this.handleClick}>
+//                 {this.props.children}
+//             </a>
+//         );
+//     }
+// }
+
+// class CustomMenu extends React.Component {
+//     constructor(props, context) {
+//         super(props, context);
+
+//         this.handleChange = this.handleChange.bind(this);
+
+//         this.state = { value: '' };
+//     }
+
+//     handleChange = (e) => {
+
+//         console.log('log 3 =>', e.target.value);
+
+//         this.setState({ value: e.target.value.toLowerCase().trim() });
+
+//         setTimeout(() => {
+//             console.log('handle SetState =>', this.state);
+//         }, 1000);
+
+
+//     }
+
+//     render() {
+//         const {
+//             children,
+//             style,
+//             className,
+//             'aria-labelledby': labeledBy,
+//         } = this.props;
+
+//         // const { value } = this.state;
+
+//         return (
+//             <Operation.Provider value={this.state.value}>
+//                 <div style={style} className={className} aria-labelledby={labeledBy}>
+//                     <FormControl
+//                         autoFocus
+//                         className="mx-3 my-2 w-auto"
+//                         placeholder="Type to filter..."
+//                         onChange={this.handleChange}
+//                         value={this.state.value}
+//                     />
+//                     <ul className="list-unstyled">
+//                         {React.Children.toArray(children).filter(
+//                             child => !this.state.value || child.props.children.toLowerCase().startsWith(this.state.value),
+//                         )}
+//                     </ul>
+//                 </div>
+//             </Operation.Provider>
+//         );
+//     }
+// }
+
 export default class Eventos extends Component {
     state = {
         idUser: '',
-        operacao: [],
+        operacao: '',
         nome: '',
         dataInicial: '',
         dataFinal: '',
@@ -33,6 +113,10 @@ export default class Eventos extends Component {
         showListOperacoes: false
     }
 
+    toggleOperacao = () => {
+        this.setState({ operacao: this.state.operacao })
+    };
+
     async componentDidMount() {
         this.getEventos();
         this.registerToSocket();
@@ -45,10 +129,10 @@ export default class Eventos extends Component {
         const res = await api.get('eventos');
         const resOp = await api.get('operacoes');
         res.data.map((evento) => {
-            new Date(evento.dtFinal) > new Date() ? inativos.push(evento) : ativos.push(evento);
+            new Date(evento.dtFinal) < new Date() ? inativos.push(evento) : ativos.push(evento);
         })
 
-        this.setState({ eventos: ativos, eventosInativos: inativos, operacoes: resOp.data, load: false });
+        this.setState({ eventos: ativos, eventosInativos: inativos, operacoes: resOp.data.sort(), load: false });
     }
 
     showForm = () => {
@@ -59,7 +143,7 @@ export default class Eventos extends Component {
         let operacaoInsert = '';
 
         this.setState({ alerts: false })
-        if (!this.state.operacao.nome && this.state.operacaoDigitada.trim().length === 0) {
+        if (!this.state.operacao && this.state.operacaoDigitada.trim().length === 0) {
             this.showAlerts();
         } else if (this.state.nome.trim().length === 0) {
             this.showAlerts();
@@ -70,13 +154,8 @@ export default class Eventos extends Component {
         } else {
             this.setState({ loadding: true });
 
-            if (this.state.operacao.nome) {
-                operacaoInsert = this.state.operacao;
-            } else {
-                const operacaotmp = this.state.operacaoDigitada;
-                const response = await api.post(`operacoes`, { 'nome': operacaotmp });
-                operacaoInsert = response.data;
-            }
+            const response = await api.post(`operacao`, { 'nome': this.state.operacao });
+            operacaoInsert = response.data;
 
             const eventoEvento = await api.post('eventos', {
                 'idUser': localStorage.getItem('idLoggedUser'),
@@ -100,14 +179,6 @@ export default class Eventos extends Component {
 
     }
 
-    returnOperacao = op => {
-        console.log('op', op);
-        this.setState({ operacao: op });
-        setTimeout(() => {
-            console.log('state', this.state);
-        }, 1000);
-        this.showListOperacoes();
-    }
 
     retunrData = (data) => {
         return data ? new Date(data).toLocaleDateString() : '';
@@ -126,9 +197,18 @@ export default class Eventos extends Component {
         this.setState({ alerts: true });
     }
 
-    changeOperacao = (event) => {
-        this.setState({ operacaoDigitada: event.target.value });
+    returnOperacao = op => {
+        console.log('log 1 =>', op);
+
+        this.setState({ operacao: op });
         this.showListOperacoes();
+    }
+
+    changeOperacao = (teste) => {
+        console.log('changeOperacao', teste);
+
+        // this.setState({ operacao: this.state.operacao });
+        // this.showListOperacoes();
     };
 
     changeNome = (event) => {
@@ -169,13 +249,13 @@ export default class Eventos extends Component {
     };
 
     showListOperacoes = () => {
-        console.log('showlist', this.state);
-
         const showOperacoes = !this.state.showListOperacoes;
         this.setState({ showListOperacoes: showOperacoes });
     }
 
     displayOffOperacoesClick = () => {
+        console.log('foccus');
+
         if (this.state.showListOperacoes) {
             this.setState({ showListOperacoes: false })
         }
@@ -183,7 +263,7 @@ export default class Eventos extends Component {
 
     render() {
         return (
-            <div id="container" className="container" onClick={() => this.displayOffOperacoesClick()}>
+            <div id="container" className="container">
                 <div style={{ display: this.state.toast ? '' : 'none' }}>
                     <Toast tipo='success' mensagem='Enquete cadastrada' />
                 </div>
@@ -197,15 +277,16 @@ export default class Eventos extends Component {
                     <div className="col-12">
                         <Form style={{ 'display': this.state.isForm ? '' : 'none' }} autoComplete="nothing">
                             <div className="row">
-                                <div className="col-md-3">
+                                <div className="col-md-3 inputOperation">
                                     <small><label>Operação</label></small><small className="alerts" style={{ 'display': this.state.alerts ? '' : 'none' }}>* Campo obrigatório</small>
-                                    <Form.Control className="borderInput"
+                                    {/* <Form.Control className="borderInput"
                                         maxLength="30"
                                         placeholder="Qualquer operação"
                                         aria-label="Recipient's username"
                                         aria-describedby="basic-addon2"
-                                        value={this.state.operacao.nome}
+                                        value={this.state.operacao}
                                         onChange={this.changeOperacao}
+                                        onBlur={this.displayOffOperacoesClick}
                                         id="operacao"
                                         onFocus={this.showListOperacoes}
                                         autoComplete="off"
@@ -213,13 +294,33 @@ export default class Eventos extends Component {
                                     <ListGroup id="listgroup" style={{ 'display': this.state.showListOperacoes ? '' : 'none' }}>
 
                                         {this.state.operacoes && this.state.operacoes.map((operacao) => (
-                                            <a key={operacao._id} className="itemLista" id="item" onClick={() => this.returnOperacao(operacao)} >
+                                            <a className="itemLista" key={operacao} id="item" onClick={() => this.returnOperacao(operacao)} >
                                                 <ListGroup.Item style={{ 'border': 'none' }} className="listHover">
-                                                    {operacao.nome}
+                                                    {operacao}
                                                 </ListGroup.Item>
                                             </a>
                                         ))}
-                                    </ListGroup>
+                                    </ListGroup> */}
+                              
+                                    <OperacaoContext.Consumer>
+
+                                        {operacao => (console.log('value 296', this.state),
+
+                                            <DropdownToggle operacao={operacao} operacoes={this.state.operacoes} />
+
+
+
+                                            // <Dropdown className="dropdown" value={value} onChange={value => this.changeOperacao} >
+                                            //     <Dropdown.Toggle as={CustomToggle} id="dropdown-custom-components" >
+                                            //         Selecione ou digite</Dropdown.Toggle>
+                                            //     <Dropdown.Menu className="dropdown-menu" as={CustomMenu} id="changeOp">
+                                            //         {this.state.operacoes && this.state.operacoes.map((operacao) => (
+                                            //             <Dropdown.Item eventKey={operacao} onClick={() => this.returnOperacao(operacao)} >{operacao}</Dropdown.Item>
+                                            //         ))}
+                                            //     </Dropdown.Menu>
+                                            // </Dropdown>
+                                        )}
+                                    </OperacaoContext.Consumer>
                                 </div>
                                 <div className="col-md-9">
                                     <small><label>Nome</label></small><small className="alerts" style={{ 'display': this.state.alerts ? '' : 'none' }}>* Campo obrigatório</small>
