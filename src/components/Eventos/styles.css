@@ -3,7 +3,8 @@
 }
 
 .marginTop-screen {
-    padding-top: 30px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px;
 }
 
 label {
@@ -19,6 +20,10 @@ label {
 
 .buttonPublicar {
     margin-top: 15px;
+    width: 100% !important;
+}
+
+.d-inline-block {
     width: 100% !important;
 }
 
@@ -141,4 +146,28 @@ input[type=number] {
 
 .marginSpinner {
     margin-top: 15px;
+}
+
+.label-alert-data {
+    font-size: 0.8rem;
+}
+
+.alert-data {
+    padding: 5px 10px 5px 10px;
+    margin: 4px;
+    position: absolute;
+    z-index: 999;
+}
+
+.buttonFiltrar {
+    margin-top: 15px;
+    width: 100% !important;
+    border: none;
+    border-radius: 0px;
+}
+
+.buttonFiltrar:hover, .buttonFiltrar:active {
+    background: #FFF;
+    color: #686a70;
+    border: 1px solid #686a70;
 }

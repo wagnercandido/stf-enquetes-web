@@ -5,7 +5,10 @@ import { distanceInWords } from 'date-fns';
 import io from 'socket.io-client';
 
 import './styles.css';
-import { Form, Button, Spinner, Card, ListGroup, ListGroupItem, FormControl, Dropdown } from 'react-bootstrap';
+import {
+    Form, Button, Spinner, Card, ListGroup, ListGroupItem,
+    FormControl, Dropdown, Alert, OverlayTrigger, Tooltip
+} from 'react-bootstrap';
 
 import IconMais from '../../assets/sum-icon.svg';
 import Toast from '../../services/toast';
@@ -82,18 +85,18 @@ export default class Eventos extends Component {
         nome: '',
         dataInicial: '',
         dataFinal: '',
-        isAtivo: true,
 
         isForm: false,
         loadding: false,
         load: false,
         alerts: false,
-        toast: false,
+        dataInvalida: false,
 
         eventos: [],
+        eventosAtivos: [],
         eventosInativos: [],
         operacoes: [],
-        showListOperacoes: false
+        eventosFiltrados: [],
     }
 
     async componentDidMount() {
@@ -111,7 +114,7 @@ export default class Eventos extends Component {
             new Date(evento.dtFinal) < new Date() ? inativos.push(evento) : ativos.push(evento);
         })
 
-        this.setState({ eventos: ativos, eventosInativos: inativos, operacoes: resOp.data.sort(), load: false });
+        this.setState({ eventos: res.data, eventosAtivos: ativos, eventosInativos: inativos, operacoes: resOp.data.sort(), load: false });
     }
 
     showForm = () => {
@@ -144,7 +147,6 @@ export default class Eventos extends Component {
                 'nome': this.state.nome,
                 'dtInicial': this.state.dataInicial,
                 'dtFinal': this.state.dataFinal,
-                'isAtivo': this.state.isAtivo
             })
 
             if (eventoEvento.data) {
@@ -170,7 +172,7 @@ export default class Eventos extends Component {
         const socket = io('http://localhost:3333');
 
         socket.on('evento', newEvento => {
-            this.setState({ eventos: [newEvento, ...this.state.eventos] })
+            this.setState({ eventosAtivos: [newEvento, ...this.state.eventos] })
         })
     };
 
@@ -179,20 +181,8 @@ export default class Eventos extends Component {
     }
 
     returnOperacao = op => {
-
         this.setState({ operacao: op });
-        this.showListOperacoes();
-        setTimeout(() => {
-            console.log('log 1 =>', op, '\nState =>', this.state);
-        }, 1000);
     }
-
-    changeOperacao = (log) => {
-        console.log('changeOperacao', log);
-
-        this.setState({ operacao: log });
-        // this.showListOperacoes();
-    };
 
     changeNome = (event) => {
         this.setState({ nome: event.target.value });
@@ -202,15 +192,23 @@ export default class Eventos extends Component {
     };
 
     changeDataInicial = (event) => {
-        this.setState({ dataInicial: event.target.value });
+        this.setState({ dataInvalida: false })
+        if (+new Date(event.target.value) > new Date(this.state.dataFinal)) {
+            this.setState({ dataInvalida: true })
+        } else {
+            this.setState({ dataInicial: event.target.value, dataInvalida: false });
+        }
     };
 
     changedataFinal = (event) => {
-        this.setState({ dataFinal: event.target.value });
-    };
-
-    changeEventoAtivo = (event) => {
-        this.setState({ isAtivo: event.target.value });
+        this.setState({ dataInvalida: false })
+        if (+new Date(event.target.value) <= +new Date()) {
+            this.setState({ dataInvalida: true })
+        } else if (+new Date(this.state.dataInicial) > +new Date(event.target.value)) {
+            this.setState({ dataInvalida: true })
+        } else {
+            this.setState({ dataFinal: event.target.value, dataInvalida: false });
+        }
     };
 
     limparForm = () => {
@@ -219,7 +217,6 @@ export default class Eventos extends Component {
             nome: '',
             dataInicial: '',
             dataFinal: '',
-            isAtivo: true,
 
             isForm: false,
             loadding: false,
@@ -227,13 +224,7 @@ export default class Eventos extends Component {
             alerts: false,
             toast: false,
         });
-        // document.getElementById('operacao').value = ''
     };
-
-    showListOperacoes = () => {
-        const showOperacoes = !this.state.showListOperacoes;
-        this.setState({ showListOperacoes: showOperacoes });
-    }
 
     displayOffOperacoesClick = () => {
         console.log('foccus');
@@ -243,16 +234,66 @@ export default class Eventos extends Component {
         }
     }
 
+    showToast() {
+        this.setState({ toast: true })
+        setTimeout(() => {
+            this.setState({ toast: false })
+        }, 1500);
+    }
+
+    pesquisarEventos = (event) => {
+        let filtrados = [];
+        if (event.length > 1) {
+            this.setState({ load: true });
+            setTimeout(() => {
+                this.state.eventos.map((evento) => {
+                    if (evento.operacao) {
+                        if (String(evento.operacao.nome).toLocaleUpperCase().indexOf(event.toUpperCase()) >= 0 || String(evento.nome.toUpperCase()).indexOf(event.toUpperCase()) >= 0) {
+                            filtrados.push(evento)
+                        }
+                    }
+                })
+                this.setState({ eventosFiltrados: filtrados });
+                this.setState({ load: false });
+            }, 2000);
+        } else if (event.length === 0) {
+            this.setState({ eventosFiltrados: [] })
+            this.setState({ load: false });
+        }
+
+    }
+
     render() {
-        let op = this.state.operacao;
         return (
             <div id="container" className="container">
                 <div style={{ display: this.state.toast ? '' : 'none' }}>
-                    <Toast tipo='success' mensagem='Enquete cadastrada' />
+                    <Toast tipo='success' mensagem='Evento cadastrada' />
+                </div>
+                <div style={{ display: this.state.toast ? '' : 'none' }}>
+                    <Toast tipo='error' mensagem="Para filtrar, preencher um dos campos" />
                 </div>
                 <div className="row marginTop-screen">
-                    <div className="col-md-8">
-                        <h3>Adicione um novo Evento<Button className="showFormButton" onClick={this.showForm}><img src={IconMais}></img></Button></h3>
+                    <div className="col-2">
+                        <h3>Eventos</h3>
+                    </div>
+                    <div className="col-2">
+                        <OverlayTrigger
+                            placement="bottom"
+                            overlay={<Tooltip id="">Adicione um novo Evento</Tooltip>}>
+                            <Button className="showFormButton" onClick={this.showForm}><img src={IconMais}></img></Button>
+                        </OverlayTrigger>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-md-6">
+                        <Form.Control className="borderInput"
+                            maxLength="50"
+                            placeholder="Pesquise um Evento, pelo nome ou operação"
+                            aria-label="Recipient's username"
+                            aria-describedby="basic-addon2"
+                            onChange={(event) => this.pesquisarEventos(event.target.value)}
+                            style={{ 'display': !this.state.isForm ? '' : 'none' }}
+                        />
                     </div>
                 </div>
 
@@ -260,39 +301,22 @@ export default class Eventos extends Component {
                     <div className="col-12">
                         <Form style={{ 'display': this.state.isForm ? '' : 'none' }} autoComplete="nothing">
                             <div className="row">
-                                <div className="col-md-3 inputOperation">
+                                <div className="col-md-3 ">
                                     <small><label>Operação</label></small><small className="alerts" style={{ 'display': this.state.alerts ? '' : 'none' }}>* Campo obrigatório</small>
-                                    {/* <Form.Control className="borderInput"
+                                    <Form.Control className="borderInput"
                                         maxLength="30"
-                                        placeholder="Qualquer operação"
+                                        placeholder="Digite a descrição do Evento"
                                         aria-label="Recipient's username"
                                         aria-describedby="basic-addon2"
-                                        value={this.state.operacao}
-                                        onChange={this.changeOperacao}
-                                        onBlur={this.displayOffOperacoesClick}
-                                        id="operacao"
-                                        onFocus={this.showListOperacoes}
-                                        autoComplete="off"
+                                        onChange={(event) => this.returnOperacao(event.target.value)}
+                                        id="nome"
+                                        list="operacoes"
                                     />
-                                    <ListGroup id="listgroup" style={{ 'display': this.state.showListOperacoes ? '' : 'none' }}>
-
-                                        {this.state.operacoes && this.state.operacoes.map((operacao) => (
-                                            <a className="itemLista" key={operacao} id="item" onClick={() => this.returnOperacao(operacao)} >
-                                                <ListGroup.Item style={{ 'border': 'none' }} className="listHover">
-                                                    {operacao}
-                                                </ListGroup.Item>
-                                            </a>
-                                        ))}
-                                    </ListGroup> */}
-                                    <Dropdown className="dropdown">
-                                        <Dropdown.Toggle as={CustomToggle} id="dropdown-custom-components" onChange={this.returnOperacao}>
-                                            Selecione ou digite</Dropdown.Toggle>
-                                        <Dropdown.Menu className="dropdown-menu" as={CustomMenu} id="changeOp">
-                                            {this.state.operacoes && this.state.operacoes.map((operacao) => (
-                                                <Dropdown.Item key={operacao} onClick={() => this.returnOperacao(operacao)} >{operacao}</Dropdown.Item>
-                                            ))}
-                                        </Dropdown.Menu>
-                                    </Dropdown>
+                                    <datalist id="operacoes">
+                                        {this.state.operacoes && this.state.operacoes.map((operacao) => {
+                                            return (<option key={operacao}>{operacao}</option>)
+                                        })}
+                                    </datalist>
                                 </div>
                                 <div className="col-md-9">
                                     <small><label>Nome</label></small><small className="alerts" style={{ 'display': this.state.alerts ? '' : 'none' }}>* Campo obrigatório</small>
@@ -328,13 +352,11 @@ export default class Eventos extends Component {
                                         onChange={this.changedataFinal}
                                         id="dataFinal"
                                     />
+                                    <Alert variant="danger alert-data" style={{ 'display': this.state.dataInvalida ? '' : 'none' }}>
+                                        <label className="label-alert-data">A data final deve ser superior a data incial e a data atual</label>
+                                    </Alert>
                                 </div>
                                 <div className="col-md-3">
-                                    <small><label>Ativo</label></small><small className="alerts" style={{ 'display': this.state.alerts ? '' : 'none' }}>* Campo obrigatório</small>
-                                    <Form.Control className="borderInput" as="select" onChange={this.changeEventoAtivo}>
-                                        <option value={true}>Sim</option>
-                                        <option value={false}>Não</option>
-                                    </Form.Control>
                                 </div>
                                 <div className="col-md-3 text-center marginSpinner" style={{ 'display': this.state.loadding ? '' : 'none' }}>
                                     <Spinner animation="border" variant="secondary" role="status">
@@ -342,7 +364,11 @@ export default class Eventos extends Component {
                                     </Spinner>
                                 </div>
                                 <div className="col-md-3" style={{ 'display': !this.state.loadding ? '' : 'none' }}>
-                                    <Button className="buttonPublicar" onClick={this.salvarEvento} variant="outline-secondary">Publicar</Button>
+                                    <OverlayTrigger overlay={<Tooltip>Tooltip!</Tooltip>}>
+                                        <span className="d-inline-block">
+                                            <Button className="buttonPublicar" style={{ pointerEvents: 'none' }} onClick={this.salvarEvento} variant="outline-secondary">Cadastrar</Button>
+                                        </span>
+                                    </OverlayTrigger>
                                 </div>
                             </div>
                         </Form>
@@ -356,8 +382,8 @@ export default class Eventos extends Component {
                         </Spinner>
                     </div>
                 </div>
-                <div className="row">
-                    {this.state.eventos && this.state.eventos.map(evento => (
+                <div className="row" style={{ 'display': !(this.state.eventosFiltrados.length > 0) ? '' : 'none' }}>
+                    {this.state.eventosAtivos && this.state.eventosAtivos.map(evento => (
                         <div className="col-lg-4 col-md-3 col-sm-6" key={evento._id} onClick={() => this.props.history.push(`/enquetes/evento/${evento._id}`)}>
                             <Card className="Card">
                                 <Card.Body>
@@ -379,6 +405,23 @@ export default class Eventos extends Component {
                                     <div className="row cardAlignInvalid">
                                         <Card.Title className="mb-2 text-muted cardTitle">{(evento.nome).toUpperCase()}</Card.Title>
                                         <small>Inativo</small>
+                                    </div>
+                                    <div className="row dateCampo">
+                                        <small>{this.retunrData(evento.dtInicial)} - {this.retunrData(evento.dtFinal)}</small>
+                                        <small className="operacao">{evento.operacao && evento.operacao.nome}</small>
+                                    </div>
+                                </Card.Body>
+                            </Card>
+                        </div>
+                    ))}
+                </div>
+                <div className="row" style={{ 'display': this.state.eventosFiltrados.length > 0 ? '' : 'none' }}>
+                    {this.state.eventosFiltrados && this.state.eventosFiltrados.map(evento => (
+                        <div className="col-lg-4 col-md-3 col-sm-6" key={evento._id} onClick={() => this.props.history.push(`/enquetes/evento/${evento._id}`)}>
+                            <Card className="Card">
+                                <Card.Body>
+                                    <div className="row">
+                                        <Card.Title className="mb-2 text-muted cardTitle">{(evento.nome).toUpperCase()}</Card.Title>
                                     </div>
                                     <div className="row dateCampo">
                                         <small>{this.retunrData(evento.dtInicial)} - {this.retunrData(evento.dtFinal)}</small>
