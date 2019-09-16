@@ -169,7 +169,7 @@ export default class Eventos extends Component {
 
     registerToSocket = () => {
         // const socket = io('https://stf-pocka-backend.herokuapp.com');
-        const socket = io('http://https://api-pocka.herokuapp.com');
+        const socket = io('https://api-pocka.herokuapp.com');
 
         socket.on('evento', newEvento => {
             this.setState({ eventosAtivos: [newEvento, ...this.state.eventos] })
