@@ -70,7 +70,7 @@ export default class Main extends Component {
 
     registerToSocket = () => {
         // const socket = io('https://stf-pocka-backend.herokuapp.com');
-        const socket = io('http://localhost:3333');
+        const socket = io('https://api-pocka.herokuapp.com');
 
         socket.on('sugestao', ({ enquete }) => {
             this.setState({
