@@ -53,7 +53,8 @@ export default class Enquete extends Component {
 
     registerToSocket = () => {
         // const socket = io('https://stf-pocka-backend.herokuapp.com');
-        const socket = io('https://api-pocka.herokuapp.com');
+        const socket = io('https://pocka-api.herokuapp.com');
+        // const socket = io('http://localhost:3333');
 
         socket.on('like', likedComment => {
             this.setState({

@@ -169,7 +169,8 @@ export default class Eventos extends Component {
 
     registerToSocket = () => {
         // const socket = io('https://stf-pocka-backend.herokuapp.com');
-        const socket = io('https://api-pocka.herokuapp.com');
+        const socket = io('https://pocka-api.herokuapp.com');
+        // const socket = io('http://localhost:3333');
 
         socket.on('evento', newEvento => {
             this.setState({ eventosAtivos: [newEvento, ...this.state.eventos] })
@@ -364,9 +365,9 @@ export default class Eventos extends Component {
                                     </Spinner>
                                 </div>
                                 <div className="col-md-3" style={{ 'display': !this.state.loadding ? '' : 'none' }}>
-                                    <OverlayTrigger overlay={<Tooltip>Tooltip!</Tooltip>}>
+                                    <OverlayTrigger overlay={<Tooltip>Cadastrar</Tooltip>}>
                                         <span className="d-inline-block">
-                                            <Button className="buttonPublicar" style={{ pointerEvents: 'none' }} onClick={this.salvarEvento} variant="outline-secondary">Cadastrar</Button>
+                                            <Button className="buttonPublicar"  onClick={this.salvarEvento} variant="outline-secondary">Cadastrar</Button>
                                         </span>
                                     </OverlayTrigger>
                                 </div>
