@@ -6,6 +6,7 @@ import Main from './components/Main';
 import Enquete from './components/Enquete';
 import Usuarios from './components/Usuarios';
 import Eventos from './components/Eventos';
+import Cadastro from './components/Cadastro';
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
     <Route {...rest} render={(props) => (
@@ -24,6 +25,7 @@ const Routes = () => (
                         <Route path="/" exact component={Eventos} />
                         <PrivateRoute path="/eventos" exact component={Eventos} />
                         <Route path="/login" exact component={Usuarios} />
+                        <Route path="/cadastro" exact component={Cadastro} />
                         <PrivateRoute path="/enquetes/evento/:id" exact component={Main} />
                         <PrivateRoute path="/sugestoes/enquete/:id" exact component={Enquete} />
                     </Switch>

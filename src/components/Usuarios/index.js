@@ -42,8 +42,8 @@ export default class Usuarios extends Component {
             localStorage.setItem('loggedUser', response.data.user);
             localStorage.setItem('idLoggedUser', response.data._id);
             this.props.history.push(`/eventos`);
-        } else {
-            this.setState({ error: 'usuário ou senha inválido' })
+        } else if (response.data.status === 401) {
+            this.setState({ error: response.data.msg })
             return this.setState.error = true;
         }
 
@@ -65,7 +65,6 @@ export default class Usuarios extends Component {
                                 <h4>
                                     <label for="username">Entrar</label>
                                 </h4>
-                                <small className="info">Senha de acesso: Data de Nascimento DDMMYYYY</small>
                                 <Form.Control
                                     id="username"
                                     placeholder="usuário de rede" autoComplete="desligado" autoCorrect="off" spellCheck="off"
@@ -84,7 +83,7 @@ export default class Usuarios extends Component {
                                 />
                                 <small className="error">{this.state.error}</small>
                                 <Button className="btnEntrar" onClick={() => this.login(setUser)} >Entrar</Button>
-
+                                <span className="cadastrar" onClick={() => this.props.history.push(`/cadastro`)}>Cadastrar-se</span>
                             </form>
                         </div>
                     )

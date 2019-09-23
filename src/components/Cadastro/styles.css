@@ -3,7 +3,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: -100px;
+    margin-top: -80px;
 }
 
 #main-container form {
@@ -20,6 +20,11 @@
     padding: 0 20px;
     margin-top: 10px;
     text-align: center;
+}
+
+.username {
+    width: 400px !important;
+    text-align: left !important;
 }
 
 .btnEntrar {
@@ -42,7 +47,15 @@
 .error {
     color: #ff0018;
     text-align: center;
-    margin-bottom: -10px;
+    margin-top: 10px;
+    margin-bottom: -20px;
+}
+
+.success {
+    color: green;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: -20px;
 }
 
 label {

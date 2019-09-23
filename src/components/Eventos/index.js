@@ -168,9 +168,9 @@ export default class Eventos extends Component {
     }
 
     registerToSocket = () => {
-        // const socket = io('https://stf-pocka-backend.herokuapp.com');
-        const socket = io('https://pocka-api.herokuapp.com');
-        // const socket = io('http://localhost:3333');
+        // const socket = io('https://stf-pocka-backend.herokuapp.com'); //Api Wagner
+        const socket = io('https://pocka-api.herokuapp.com'); //Api Stefanini Dev
+        // const socket = io('http://localhost:3333'); //Api Localhost
 
         socket.on('evento', newEvento => {
             this.setState({ eventosAtivos: [newEvento, ...this.state.eventos] })
@@ -268,7 +268,7 @@ export default class Eventos extends Component {
         return (
             <div id="container" className="container">
                 <div style={{ display: this.state.toast ? '' : 'none' }}>
-                    <Toast tipo='success' mensagem='Evento cadastrada' />
+                    <Toast tipo='success' mensagem='Evento cadastrado' />
                 </div>
                 <div style={{ display: this.state.toast ? '' : 'none' }}>
                     <Toast tipo='error' mensagem="Para filtrar, preencher um dos campos" />
@@ -367,7 +367,7 @@ export default class Eventos extends Component {
                                 <div className="col-md-3" style={{ 'display': !this.state.loadding ? '' : 'none' }}>
                                     <OverlayTrigger overlay={<Tooltip>Cadastrar</Tooltip>}>
                                         <span className="d-inline-block">
-                                            <Button className="buttonPublicar"  onClick={this.salvarEvento} variant="outline-secondary">Cadastrar</Button>
+                                            <Button className="buttonPublicar" onClick={this.salvarEvento} variant="outline-secondary">Cadastrar</Button>
                                         </span>
                                     </OverlayTrigger>
                                 </div>
