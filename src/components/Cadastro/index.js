@@ -44,7 +44,7 @@ export default class Cadastro extends Component {
 
     cadastrar = async (setUser) => {
         this.setState({ error: '', confirmacao: '' });
-        if (this.state.name) {
+        if (this.state.name.trim().length === 0 || this.state.newUser.trim().length === 0 || this.state.newPass.trim().length === 0 || this.state.rePass.trim().length === 0) {
             this.setState({ error: 'Todos os campos são obrigatórios!' });
         } else {
             if (this.state.newPass === this.state.rePass) {
